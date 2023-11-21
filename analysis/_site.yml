@@ -1,7 +1,7 @@
-name: "PGS-differences-confounding"
+name: PGS-differences-confounding
 output_dir: ../docs
 navbar:
-  title: "PGS-differences-confounding"
+  title: PGS-differences-confounding
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fab fa-github
+    text: Source code
+    href: https://github.com/jgblanc/PGS-differences-confounding
 output:
   workflowr::wflow_html:
     toc: yes
