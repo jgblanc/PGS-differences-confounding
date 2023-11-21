@@ -1,5 +1,5 @@
 ---
-title: "Home"
+title: "Testing for differences in polygenic scores in the presence of confounding"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -8,4 +8,29 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+## Link to Manuscript
+
+This website contains all the code for the manuscript ["Testing for differences in polygenic scores in the presence of confounding"](https://www.biorxiv.org/content/10.1101/2023.03.12.532301v3)
+
+
+## Author Summary
+
+Complex traits are influenced by both genetics and the environment. Human geneticists increasingly use polygenic scores, calculated as the weighted sum of trait-associated alleles, to predict genetic effects on a phenotype. Differences in polygenic scores across groups would therefore seem to indicate differences in the genetic basis of the trait, which are of interest to researchers across disciplines. However, because polygenic scores are usually computed using effect sizes estimated using population samples, they are susceptible to confounding due to both the genetic background and the environment. Here, we use theory from population and statistical genetics, together with simulations, to study how environmental and background genetic effects can confound tests for association between polygenic scores and axes of ancestry variation. We then develop a simple method to protect these tests from confounding and show that our approach succeeds in situations that are difficult to protect with standard methods. Our work helps clarify how bias in the distribution of polygenic scores is produced and provides a tool to researchers wishing to protect their analyses from confounding. 
+
+## Simulation Pipeline 
+
+This pipeline is written in snakemake. To run the entire simulation pipeline you simply need to swap in the correct snakefile.   
+
+* `code/snakefile_4PopSplit` is the correct file to run the 4 population toy model from Figures 1 and 2.  
+* `code/snakefile_SimpleGrid` runs the stepping stone grid simulations and has options to simulate the confounders and do the polygenic adaptation tests from Figures 3 and 4.    
+
+The pages below explain the 5 major steps of the pipeline:  
+
+1. [Simulate Genotypes](Simulate_Genotypes.html) 
+2. [Simulate Phenotypes](Simulate_Phenotypes.html) 
+3. [Project Test Vector](Calculate_TGWAS.html) 
+4. [Run GWAS and Ascertain SNPs](Run_GWAS.html)
+5. [Polygenic Adaptation Test](Polygenic_Selection_Test.html) 
+
+## Results
+
