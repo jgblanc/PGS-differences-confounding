@@ -1,0 +1,3 @@
+NameError in line 95 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
+name 'CHR' is not defined
+  File "/Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit", line 95, in <module>

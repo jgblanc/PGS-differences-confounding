@@ -1,0 +1,63 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	4	calculate_fst
+	5
+
+[Fri Jan 12 17:46:06 2024]
+rule calculate_fst:
+    input: output/Simulate_Genotypes/4PopSplit/A1/genos.psam, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/common_snps_L-10.txt
+    output: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas_L-10.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/test_L-10.fst.summary
+    jobid: 2
+    wildcards: rep=A1, config=C1, gwas_size=gp-4, test_size=tp-4, nsnp=L-10
+
+[Fri Jan 12 17:46:06 2024]
+Finished job 2.
+1 of 5 steps (20%) done
+
+[Fri Jan 12 17:46:06 2024]
+rule calculate_fst:
+    input: output/Simulate_Genotypes/4PopSplit/A1/genos.psam, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/ids.test, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/common_snps_L-10.txt
+    output: output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/gwas_L-10.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/test_L-10.fst.summary
+    jobid: 4
+    wildcards: rep=A1, config=C2, gwas_size=gp-4, test_size=tp-4, nsnp=L-10
+
+[Fri Jan 12 17:46:06 2024]
+Finished job 4.
+2 of 5 steps (40%) done
+
+[Fri Jan 12 17:46:06 2024]
+rule calculate_fst:
+    input: output/Simulate_Genotypes/4PopSplit/A1/genos.psam, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/ids.test, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/common_snps_L-3.txt
+    output: output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/gwas_L-3.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/test_L-3.fst.summary
+    jobid: 3
+    wildcards: rep=A1, config=C2, gwas_size=gp-4, test_size=tp-4, nsnp=L-3
+
+[Fri Jan 12 17:46:06 2024]
+Finished job 3.
+3 of 5 steps (60%) done
+
+[Fri Jan 12 17:46:06 2024]
+rule calculate_fst:
+    input: output/Simulate_Genotypes/4PopSplit/A1/genos.psam, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/common_snps_L-3.txt
+    output: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas_L-3.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/test_L-3.fst.summary
+    jobid: 1
+    wildcards: rep=A1, config=C1, gwas_size=gp-4, test_size=tp-4, nsnp=L-3
+
+[Fri Jan 12 17:46:06 2024]
+Finished job 1.
+4 of 5 steps (80%) done
+
+[Fri Jan 12 17:46:06 2024]
+localrule all:
+    input: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas_L-3.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas_L-10.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/gwas_L-3.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/gwas_L-10.fst.summary
+    jobid: 0
+
+[Fri Jan 12 17:46:06 2024]
+Finished job 0.
+5 of 5 steps (100%) done
+Complete log: /Users/jenniferblanc/PGS-differences-confounding/.snakemake/log/2024-01-12T174606.016986.snakemake.log

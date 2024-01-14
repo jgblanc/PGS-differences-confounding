@@ -1,0 +1,209 @@
+## Snakefile to run 4 Pop Simulations
+
+ROOT = ["."]
+SITES =["1000"]
+CONFIG=["C1", "C2"]
+REP = []
+for i in range(1,2):
+  REP.append("A"+str(i))
+GWAS_SIZE=["gp-4"]
+TEST_SIZE=["tp-4"]
+NSNP = ["L-3", "L-10"]
+NUM_RESAMPLE=1000
+PVALUE_THRESHOLD=1
+
+
+### No Signal - Figures 1, S1, S2
+HERITABILITY = ["h2-0.0"]
+ENV = ["env_0.0", "env_0.1"]
+TS=["p-0.50"]
+
+
+### Signal - Figures 2
+#ENV = ["env_0.0", "env_-0.1", "env_0.1"]
+#TS=["p-0.50", "p-0.53", "p-0.56", "p-0.59", "p-0.62"]
+
+
+wildcard_constraints:
+  rep="[A-Z]\d+",
+  config="C.",
+  h2="h2-[0-1].[0-9]",
+  env="env_-?[0-9].[0-9]*",
+  ts="p-[0-1].[0-9][0-9]",
+  gwas_size="gp-[0-9]*",
+  test_size="tp-[0-9]*",
+  dir="[a-z]*"
+
+def get_params(x):
+  out = x.split("-")[1]
+  return out
+
+def get_env(x):
+  out = x.split("_")[1]
+  return out
+
+rule all:
+    input:
+        expand("output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
+
+## Simluate Genotypes ##
+
+rule simulate_genotypes_4popsplit:
+    output:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.vcf",
+	      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
+    shell:
+        """
+        python code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
+	      --outpre output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos \
+	      --chr 1 \
+       	--Nanc 10000 \
+	      --NA 10000 \
+	      --NB 10000 \
+	      --NC 10000 \
+	      --ND 10000 \
+  	    -a 20 \
+	      -b 20 \
+	      -c 20 \
+	      -d 20 \
+        -s1 4400 \
+        -s2 2200 \
+        -L 1 \
+        -u 1e-3  \
+        -nsnp 100
+        """
+
+rule format_VCF:
+    input:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.vcf"
+    output:
+        gz="output/Simulate_Genotypes/4PopSplit/{rep}/genos.tmp.vcf.gz",
+        tbi="output/Simulate_Genotypes/4PopSplit/{rep}/genos.tmp.vcf.gz.tbi"
+    shell:
+        """
+	      head -n6 {input} > output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/header.txt
+	      cat output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/header.txt <(cat output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos.vcf | awk -v OFS="\t" 'NR>6 {{$3=$1"_"$2"_A_T";$4="A"; $5="T"; print ;}}') | bgzip > {output.gz}
+	      tabix -p vcf {output.gz}
+			  rm output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/header.txt
+			  rm {input}
+			  """
+
+rule change_vcf_chromosome:
+    input:
+        gz="output/Simulate_Genotypes/4PopSplit/{rep}/genos.tmp.vcf.gz",
+        tbi="output/Simulate_Genotypes/4PopSplit/{rep}/genos.tmp.vcf.gz.tbi"
+    output:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.ids.vcf.gz"
+    shell:
+        """
+        bcftools annotate --rename-chrs code/Simulate_Genotypes/convert_chr.txt {input.gz} -o {output} -O z
+	      rm {input.gz}
+	      rm {input.tbi}
+        """
+
+rule convert_vcf_to_plink:
+    input:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.ids.vcf.gz"
+    output:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pgen",
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pvar"
+    shell:
+        """
+        plink2 \
+        --double-id \
+        --make-pgen \
+        --out output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos \
+        --vcf {input}
+        rm {input}
+        """
+
+rule create_panels_4PopSplit:
+    input:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
+    output:
+        C1_gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/C1/{gwas_size}/{test_size}/ids.gwas",
+        C1_test = "output/Simulate_Genotypes/4PopSplit/{rep}/C1/{gwas_size}/{test_size}/ids.test",
+        C2_gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/C2/{gwas_size}/{test_size}/ids.gwas",
+        C2_test ="output/Simulate_Genotypes/4PopSplit/{rep}/C2/{gwas_size}/{test_size}/ids.test"
+    params:
+        gSize = lambda wildcards: get_params(wildcards.gwas_size),
+        tSize = lambda wildcards: get_params(wildcards.test_size)
+    shell:
+        """
+        Rscript code/Simulate_Genotypes/split_gwas-test_4PopSplit.R {input} {output.C1_gwas} {output.C1_test} {output.C2_gwas} {output.C2_test} {params.gSize} {params.tSize}
+        """
+
+rule get_variant_freq:
+    input:
+        genos="output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+        gwasIDs="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+        testIDs="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.test"
+    output:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-test.afreq",
+        "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas.afreq"
+    params:
+        plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+        out_gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas",
+        out_test = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-test"
+    shell:
+        """
+        plink2 \
+	      --pfile {params.plink_prefix} \
+	      --keep {input.gwasIDs} \
+	      --freq \
+		    --out {params.out_gwas}
+
+			  plink2 \
+        --pfile {params.plink_prefix} \
+        --keep {input.testIDs} \
+        --freq \
+        --out {params.out_test}
+        """
+
+rule get_common_snp_list:
+    input:
+        test="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-test.afreq",
+        gwas="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas.afreq"
+    output:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+    params:
+        num_snp = lambda wildcards: get_params(wildcards.nsnp)
+    shell:
+        """
+        Rscript code/Simulate_Genotypes/get_common_snp_list.R {input.test} {input.gwas} {params.num_snp} {output}
+        rm {input.test}
+        rm {input.gwas}
+        """
+
+rule calculate_fst:
+    input:
+        genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+        gwas_ids="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+        test_ids="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.test",
+        snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+    output:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary",
+        "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/test_{nsnp}.fst.summary"
+    params:
+        plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+        out_gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}",
+        out_test ="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/test_{nsnp}"
+    shell:
+        """
+        ~/Desktop/plink2 \
+	      --pfile {params.plink_prefix} \
+	      --extract {input.snps} \
+	      --keep {input.gwas_ids} \
+	      --pheno {input.gwas_ids} \
+	      --fst POP \
+	      --out {params.out_gwas}
+
+		    ~/Desktop/plink2 \
+	      --pfile {params.plink_prefix} \
+	      --extract {input.snps} \
+	      --keep {input.test_ids} \
+	      --pheno {input.test_ids} \
+	      --fst POP \
+	      --out {params.out_test}
+		    """

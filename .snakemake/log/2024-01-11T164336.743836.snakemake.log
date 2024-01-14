@@ -1,0 +1,26 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	simulate_genotypes_4popsplit
+	2
+
+[Thu Jan 11 16:43:36 2024]
+rule simulate_genotypes_4popsplit:
+    output: output/Simulate_Genotypes/4PopSplit/A1/genos.vcf, output/Simulate_Genotypes/4PopSplit/A1/genos.pop
+    jobid: 1
+    wildcards: rep=A1
+
+Waiting at most 5 seconds for missing files.
+MissingOutputException in line 52 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
+Missing files after 5 seconds:
+output/Simulate_Genotypes/4PopSplit/A1/genos.vcf
+This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait.
+Removing output files of failed job simulate_genotypes_4popsplit since they might be corrupted:
+output/Simulate_Genotypes/4PopSplit/A1/genos.pop
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/jenniferblanc/PGS-differences-confounding/.snakemake/log/2024-01-11T164336.743836.snakemake.log

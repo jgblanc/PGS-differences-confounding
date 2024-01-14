@@ -1,0 +1,5 @@
+Building DAG of jobs...
+InputFunctionException in line 48 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
+NameError: name 'get_seed_msprime' is not defined
+Wildcards:
+rep=A1

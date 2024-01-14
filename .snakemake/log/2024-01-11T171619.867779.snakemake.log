@@ -1,0 +1,28 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	1	simulate_genotypes_4popsplit
+	2
+
+[Thu Jan 11 17:16:19 2024]
+rule simulate_genotypes_4popsplit:
+    output: output/Simulate_Genotypes/4PopSplit/A1/genos.vcf, output/Simulate_Genotypes/4PopSplit/A1/genos.pop
+    jobid: 1
+    wildcards: rep=A1
+
+[Thu Jan 11 17:16:21 2024]
+Error in rule simulate_genotypes_4popsplit:
+    jobid: 1
+    output: output/Simulate_Genotypes/4PopSplit/A1/genos.vcf, output/Simulate_Genotypes/4PopSplit/A1/genos.pop
+    shell:
+        
+        python code/Simulate_Genotypes/generate_genotypes_4PopSplit.py 	      --outpre output/Simulate_Genotypes/4PopSplit/A1/genos 	      --chr 1        	--Nanc 10000 	      --NA 10000 	      --NB 10000 	      --NC 10000 	      --ND 10000   	    -a 2 	      -b 2 	      -c 2 	      -d 2         -s1 4400         -s2 2200         -L 1         -u 1e-3          -nsnp 10         --seed 1000
+        
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/jenniferblanc/PGS-differences-confounding/.snakemake/log/2024-01-11T171619.867779.snakemake.log

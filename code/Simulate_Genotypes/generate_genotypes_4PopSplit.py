@@ -6,6 +6,8 @@
 import msprime
 import argparse
 import pandas as pd
+import numpy as np
+import os
 
 # Parse Inputs 
 parser=argparse.ArgumentParser()
@@ -28,14 +30,14 @@ parser.add_argument("--split1","-s1",dest="split_time1",help="time when 1 pop sp
 parser.add_argument("--split2","-s2",dest="split_time2",help="time when 2 pops split to 4",type=int,default=70e3,nargs="?")
 parser.add_argument("--ploidy","-p",dest="ploidy",help="ploidy of individuals",type=int,default=2,nargs="?")
 req_grp.add_argument("--chr","-ch",dest="chrom_num",help="number of chromosome",type=int,required=True)
-parser.add_argument("--seed","-sd",dest="seed",help="seed for simulation",type=int,default=1,nargs="?")
+parser.add_argument("--target_n_snps","-nsnp",dest="nsnp",help="how many independent snps do you want",type=int,default=1,nargs="?")
 args=parser.parse_args()
 
 print(args)
 
 
 # Define Function to generate tree sequency under 4 population split model - single population splits into 2 at `split_time_1` and each of those populations splits into 2 at `split_time_2`
-def split(N_A, N_B, N_C, N_D, split_time1, split_time2, sample_A, sample_B, sample_C, sample_D, seg_length, recomb_rate, mut_rate, N_anc, seed):
+def split(N_A, N_B, N_C, N_D, split_time1, split_time2, sample_A, sample_B, sample_C, sample_D, seg_length, recomb_rate, mut_rate, N_anc, target_n_snps):
 
     # Times are provided in years, so we convert into generations.
     generation_time = 25
@@ -75,24 +77,77 @@ def split(N_A, N_B, N_C, N_D, split_time1, split_time2, sample_A, sample_B, samp
     #dd.print_history()
     
     ts = msprime.simulate(population_configurations=population_configurations,
-                         demographic_events=demographic_events, length=seg_length, recombination_rate=recomb_rate, random_seed = seed)
-    ts = msprime.mutate(ts,rate=mut_rate, random_seed=seed)
+                         demographic_events=demographic_events, length=seg_length, 
+                         num_replicates=target_n_snps, mutation_rate=mut_rate)
+                         
     return ts
 
 # Generate Tree Sequences and Save to VCF
-for i in range(0,args.chrom_num):
-    
-    print(i)
-    rand_seed = args.seed + i
-    
-    # Generate Tree Sequence 
-    #print("simulating genotypes under demographic model")
-    ts = split(args.NA, args.NB, args.NC, args.ND, args.split_time1, args.split_time2, args.sample_A, args.sample_B, args.sample_C, args.sample_D, args.length, args.rho, args.mu, args.Nanc, rand_seed)
 
+print("simulating genotypes under demographic model")
+ts = split(args.NA, args.NB, args.NC, args.ND, args.split_time1, args.split_time2, args.sample_A, args.sample_B, args.sample_C, args.sample_D, 
+args.length, args.rho, args.mu, args.Nanc, args.nsnp)
+
+# Collect output lines 
+output = []
+
+# Loop over tree sequences
+for i, tree_sequence in enumerate(ts):
+    
+    if i % 1000 == 0:
+        print("Simulating ~SNP {}".format(i))
+    
+    
+    # Extract Haplotype
+    H = tree_sequence.genotype_matrix()
+    p, n = H.shape
+    
+    if p == 0:
+        continue 
+    
+    # Get SNP global frequencies
+    snp_frequencies = np.sum(H, axis=1) / (n)
+    
+    # Find singleton frequencies 
+    threshold = 1 / n
+    selected_indices = np.where(snp_frequencies > threshold)[0]
+
+     
+    # Select random SNP
+    if len(selected_indices) > 0:
+        idx = np.random.choice(selected_indices, 1)
+
+    else: 
+        continue 
+    
     # Save to VCF
     #print("writing genotype to vcf file")
     with open(args.outpre+"_"+str(i)+".vcf","w") as vcf_file:
-        ts.write_vcf(vcf_file,ploidy=args.ploidy,contig_id=i+1)
+        tree_sequence.write_vcf(vcf_file,ploidy=args.ploidy,contig_id=1+i)
+        
+    # Read in VCF 
+    #print("reading vcf")
+    with open(args.outpre+"_"+str(i)+".vcf","r") as file:
+        
+        if i == 0:
+            # Read the first six lines of the file
+            first_six_lines = [file.readline().strip() for _ in range(6)]
+        
+        # Read the ith line and append it to the list
+        for line_number, line in enumerate(file, start=1):
+            if line_number == idx+7:
+                target_line = line.strip()
+                output.append(target_line)
+                continue 
+        
+    # Remove VCF file
+    os.remove(args.outpre+"_"+str(i)+".vcf")
+
+# Combine all SNPs and save file 
+first_six_lines.extend(output)
+with open(args.outpre+".vcf","w") as vcf_file:
+     for item in first_six_lines:
+            vcf_file.write(str(item) + '\n')
     
 # Write population information file (population identity) 
 

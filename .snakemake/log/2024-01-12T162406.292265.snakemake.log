@@ -1,0 +1,46 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	2	split_into_test_gwas
+	3
+
+[Fri Jan 12 16:24:06 2024]
+rule split_into_test_gwas:
+    input: output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/ids.test, output/Simulate_Genotypes/4PopSplit/A1/genos.psam
+    output: output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/genos-test.psam, output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/genos-gwas.psam
+    jobid: 2
+    wildcards: rep=A1, config=C2, gwas_size=gp-4, test_size=tp-4
+
+[Fri Jan 12 16:24:06 2024]
+Finished job 2.
+1 of 3 steps (33%) done
+
+[Fri Jan 12 16:24:06 2024]
+rule split_into_test_gwas:
+    input: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test, output/Simulate_Genotypes/4PopSplit/A1/genos.psam
+    output: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-test.psam, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-gwas.psam
+    jobid: 1
+    wildcards: rep=A1, config=C1, gwas_size=gp-4, test_size=tp-4
+
+[Fri Jan 12 16:24:06 2024]
+Error in rule split_into_test_gwas:
+    jobid: 1
+    output: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-test.psam, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-gwas.psam
+    shell:
+        
+	      plink2 	      --keep output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas 		    --make-pgen 			  --out output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-gwas 				--pfile output/Simulate_Genotypes/4PopSplit/A1/genos 				--rm-dup exclude-all
+
+        plink2         --keep output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test         --make-pgen         --out output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-test        --pfile output/Simulate_Genotypes/4PopSplit/A1/genos 	      --rm-dup exclude-all
+
+	      rm output/Simulate_Genotypes/4PopSplit/A1/genos.psam
+	      rm output/Simulate_Genotypes/4PopSplit/A1/genos.pvar
+	      rm output/Simulate_Genotypes/4PopSplit/A1/genos.pgen
+	      
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/jenniferblanc/PGS-differences-confounding/.snakemake/log/2024-01-12T162406.292265.snakemake.log

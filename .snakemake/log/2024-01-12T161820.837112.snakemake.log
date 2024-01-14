@@ -1,0 +1,5 @@
+Building DAG of jobs...
+MissingInputException in line 41 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
+Missing input files for rule all:
+output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/genos-gwas.psam
+output/Simulate_Genotypes/4PopSplit/A1/C2/gp-4/tp-4/genos-gwas.psam

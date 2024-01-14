@@ -1,0 +1,31 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	2	calculate_fst
+	3
+
+[Fri Jan 12 17:39:09 2024]
+rule calculate_fst:
+    input: output/Simulate_Genotypes/4PopSplit/A1/genos.psam, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test
+    output: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/test.fst.summary
+    jobid: 1
+    wildcards: rep=A1, config=C1, gwas_size=gp-4, test_size=tp-4
+
+[Fri Jan 12 17:39:09 2024]
+Error in rule calculate_fst:
+    jobid: 1
+    output: output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas.fst.summary, output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/test.fst.summary
+    shell:
+        
+        plink2 	      --pfile output/Simulate_Genotypes/4PopSplit/A1/genos 	      --keep output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas 	      --pheno output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.gwas 	      --fst POP 	      --out output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/gwas
+
+		    plink2 	      --pfile output/Simulate_Genotypes/4PopSplit/A1/genos 	      --keep output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test 	      --pheno output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/ids.test 	      --fst POP 	      --out output/Simulate_Genotypes/4PopSplit/A1/C1/gp-4/tp-4/test
+		    
+
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: /Users/jenniferblanc/PGS-differences-confounding/.snakemake/log/2024-01-12T173909.414081.snakemake.log
