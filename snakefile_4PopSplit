@@ -1,14 +1,12 @@
 ## Snakefile to run 4 Pop Simulations
 
-ROOT = ["."]
-SITES =["1000"]
 CONFIG=["C1", "C2"]
 REP = []
 for i in range(1,2):
   REP.append("A"+str(i))
-GWAS_SIZE=["gp-4"]
-TEST_SIZE=["tp-4"]
-NSNP = ["L-3", "L-10"]
+GWAS_SIZE=["gp-1000", "gp-10000", "gp-100000"]
+TEST_SIZE=["tp-1000", "tp-10000", "tp-100000"]
+NSNP = ["L-1000", "L-10000", "L-100000", "L-1000000"]
 NUM_RESAMPLE=1000
 PVALUE_THRESHOLD=1
 
@@ -51,10 +49,14 @@ rule all:
 rule simulate_genotypes_4popsplit:
     output:
         "output/Simulate_Genotypes/4PopSplit/{rep}/genos.vcf",
-	      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
+	"output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
+    threads: 16
+    resources:
+        mem_mb=50000,
+	time="01:00:00"
     shell:
         """
-        python code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
+        python3 code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
 	      --outpre output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos \
 	      --chr 1 \
        	--Nanc 10000 \
@@ -62,15 +64,15 @@ rule simulate_genotypes_4popsplit:
 	      --NB 10000 \
 	      --NC 10000 \
 	      --ND 10000 \
-  	    -a 20 \
-	      -b 20 \
-	      -c 20 \
-	      -d 20 \
+  	    -a 100000 \
+	      -b 100000 \
+	      -c 100000 \
+	      -d 100000 \
         -s1 4400 \
         -s2 2200 \
         -L 1 \
-        -u 1e-3  \
-        -nsnp 100
+        -u 1e-5  \
+        -nsnp 5000000
         """
 
 rule format_VCF:
@@ -172,8 +174,6 @@ rule get_common_snp_list:
     shell:
         """
         Rscript code/Simulate_Genotypes/get_common_snp_list.R {input.test} {input.gwas} {params.num_snp} {output}
-        rm {input.test}
-        rm {input.gwas}
         """
 
 rule calculate_fst:
@@ -191,7 +191,7 @@ rule calculate_fst:
         out_test ="output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/test_{nsnp}"
     shell:
         """
-        ~/Desktop/plink2 \
+	plink2 \
 	      --pfile {params.plink_prefix} \
 	      --extract {input.snps} \
 	      --keep {input.gwas_ids} \
@@ -199,7 +199,7 @@ rule calculate_fst:
 	      --fst POP \
 	      --out {params.out_gwas}
 
-		    ~/Desktop/plink2 \
+	      plink2 \
 	      --pfile {params.plink_prefix} \
 	      --extract {input.snps} \
 	      --keep {input.test_ids} \

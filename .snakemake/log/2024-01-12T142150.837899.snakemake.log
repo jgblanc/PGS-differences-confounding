@@ -1,4 +1,0 @@
-Building DAG of jobs...
-MissingInputException in line 95 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
-Missing input files for rule concat_vcfs:
-output/Simulate_Genotypes/4PopSplit/A1/genos.tmp.vcf

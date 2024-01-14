@@ -93,7 +93,7 @@ output = []
 
 # Loop over tree sequences
 for i, tree_sequence in enumerate(ts):
-    
+
     if i % 1000 == 0:
         print("Simulating ~SNP {}".format(i))
     
@@ -109,16 +109,18 @@ for i, tree_sequence in enumerate(ts):
     snp_frequencies = np.sum(H, axis=1) / (n)
     
     # Find singleton frequencies 
-    threshold = 1 / n
+    threshold = 5 / n
     selected_indices = np.where(snp_frequencies > threshold)[0]
-
      
     # Select random SNP
     if len(selected_indices) > 0:
         idx = np.random.choice(selected_indices, 1)
-
     else: 
         continue 
+
+    #p = tree_sequence.num_mutations
+    #idx = np.random.choice(np.arange(p), 1)
+
     
     # Save to VCF
     #print("writing genotype to vcf file")

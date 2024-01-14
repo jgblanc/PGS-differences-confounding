@@ -1,3 +1,0 @@
-NameError in line 43 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
-name 'CONGFIG' is not defined
-  File "/Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit", line 43, in <module>

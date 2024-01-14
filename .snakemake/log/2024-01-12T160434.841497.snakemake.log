@@ -1,3 +1,0 @@
-WildcardError in line 44 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
-No values given for wildcard 'gwas_size'.
-  File "/Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit", line 44, in <module>

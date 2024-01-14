@@ -1,4 +1,0 @@
-Building DAG of jobs...
-WildcardError in line 80 of /Users/jenniferblanc/PGS-differences-confounding/snakefile_4PopSplit:
-Wildcards in input files cannot be determined from output files:
-'chr'
