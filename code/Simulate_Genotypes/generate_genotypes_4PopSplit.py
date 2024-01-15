@@ -8,6 +8,7 @@ import argparse
 import pandas as pd
 import numpy as np
 import os
+import concurrent.futures
 
 # Parse Inputs 
 parser=argparse.ArgumentParser()
@@ -88,69 +89,76 @@ print("simulating genotypes under demographic model")
 ts = split(args.NA, args.NB, args.NC, args.ND, args.split_time1, args.split_time2, args.sample_A, args.sample_B, args.sample_C, args.sample_D, 
 args.length, args.rho, args.mu, args.Nanc, args.nsnp)
 
-# Collect output lines 
-output = []
 
-# Loop over tree sequences
-for i, tree_sequence in enumerate(ts):
+output = []
+header = []
+
+def process_tree_sequence(i, tree_sequence):
 
     if i % 1000 == 0:
         print("Simulating ~SNP {}".format(i))
-    
     
     # Extract Haplotype
     H = tree_sequence.genotype_matrix()
     p, n = H.shape
     
-    if p == 0:
-        continue 
     
     # Get SNP global frequencies
     snp_frequencies = np.sum(H, axis=1) / (n)
     
     # Find singleton frequencies 
-    threshold = 5 / n
+    threshold = 1 / n
     selected_indices = np.where(snp_frequencies > threshold)[0]
      
     # Select random SNP
     if len(selected_indices) > 0:
         idx = np.random.choice(selected_indices, 1)
-    else: 
-        continue 
 
-    #p = tree_sequence.num_mutations
-    #idx = np.random.choice(np.arange(p), 1)
-
-    
     # Save to VCF
     #print("writing genotype to vcf file")
-    with open(args.outpre+"_"+str(i)+".vcf","w") as vcf_file:
-        tree_sequence.write_vcf(vcf_file,ploidy=args.ploidy,contig_id=1+i)
+    with open(args.outpre + "_" + str(i) + ".vcf", "w") as vcf_file:
+        tree_sequence.write_vcf(vcf_file, ploidy=args.ploidy, contig_id=1 + i)
         
-    # Read in VCF 
+    # Read in VCF
     #print("reading vcf")
-    with open(args.outpre+"_"+str(i)+".vcf","r") as file:
+    with open(args.outpre + "_" + str(i) + ".vcf", "r") as file:
         
         if i == 0:
             # Read the first six lines of the file
             first_six_lines = [file.readline().strip() for _ in range(6)]
+            header.extend(first_six_lines)
         
         # Read the ith line and append it to the list
         for line_number, line in enumerate(file, start=1):
-            if line_number == idx+7:
+            if line_number == idx + 7:
                 target_line = line.strip()
                 output.append(target_line)
-                continue 
         
     # Remove VCF file
-    os.remove(args.outpre+"_"+str(i)+".vcf")
+    os.remove(args.outpre + "_" + str(i) + ".vcf")
 
-# Combine all SNPs and save file 
-first_six_lines.extend(output)
+
+# Function to process a chunk of the loop
+def process_chunk(chunk):
+    for i, tree_sequence in chunk:
+        process_tree_sequence(i, tree_sequence)
+
+
+# Chunk the tree sequence for parallel processing
+chunk_size = 1000  # You can adjust this based on the optimal size for your task
+chunks = [(i, tree_sequence) for i, tree_sequence in enumerate(ts)]
+chunked_data = [chunks[i:i + chunk_size] for i in range(0, len(chunks), chunk_size)]
+
+# Use ThreadPoolExecutor for parallel execution
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    all_results = executor.map(process_chunk, chunked_data)
+
+# Write outout vcf 
+header.extend(output)
 with open(args.outpre+".vcf","w") as vcf_file:
-     for item in first_six_lines:
+     for item in header:
             vcf_file.write(str(item) + '\n')
-    
+            
 # Write population information file (population identity) 
 
 #write population for each individual

@@ -42,7 +42,7 @@ def get_env(x):
 
 rule all:
     input:
-        expand("output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
+        expand("output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
 
 ## Simluate Genotypes ##
 
@@ -64,15 +64,15 @@ rule simulate_genotypes_4popsplit:
 	      --NB 10000 \
 	      --NC 10000 \
 	      --ND 10000 \
-  	    -a 100000 \
-	      -b 100000 \
-	      -c 100000 \
-	      -d 100000 \
+  	    -a 10000 \
+	      -b 10000 \
+	      -c 10000 \
+	      -d 10000 \
         -s1 4400 \
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 5000000
+        -nsnp 2000
         """
 
 rule format_VCF:
