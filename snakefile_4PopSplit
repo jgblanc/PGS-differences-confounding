@@ -6,7 +6,7 @@ for i in range(1,2):
   REP.append("A"+str(i))
 GWAS_SIZE=["gp-1000", "gp-10000", "gp-100000"]
 TEST_SIZE=["tp-1000", "tp-10000", "tp-100000"]
-NSNP = ["L-1000", "L-10000", "L-100000", "L-1000000"]
+NSNP = ["L-1000"]
 NUM_RESAMPLE=1000
 PVALUE_THRESHOLD=1
 
@@ -42,7 +42,7 @@ def get_env(x):
 
 rule all:
     input:
-        expand("output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
+        expand("output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
 
 ## Simluate Genotypes ##
 
@@ -56,7 +56,7 @@ rule simulate_genotypes_4popsplit:
 	time="01:00:00"
     shell:
         """
-        python3 code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
+        python3 -u code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
 	      --outpre output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos \
 	      --chr 1 \
        	--Nanc 10000 \
@@ -72,7 +72,7 @@ rule simulate_genotypes_4popsplit:
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 2000
+        -nsnp 10000
         """
 
 rule format_VCF:

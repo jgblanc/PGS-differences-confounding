@@ -12,3 +12,5 @@ analysis/site_libs
 output/*
 data/*
 .snakemake/*
+code/Simulate_Genotypes/convert_chr.txt
+logs/*

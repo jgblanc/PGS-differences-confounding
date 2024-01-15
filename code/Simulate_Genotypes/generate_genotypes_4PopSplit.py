@@ -107,7 +107,7 @@ def process_tree_sequence(i, tree_sequence):
     snp_frequencies = np.sum(H, axis=1) / (n)
     
     # Find singleton frequencies 
-    threshold = 1 / n
+    threshold = 30 / n
     selected_indices = np.where(snp_frequencies > threshold)[0]
      
     # Select random SNP
@@ -145,7 +145,7 @@ def process_chunk(chunk):
 
 
 # Chunk the tree sequence for parallel processing
-chunk_size = 1000  # You can adjust this based on the optimal size for your task
+chunk_size = 100  # You can adjust this based on the optimal size for your task
 chunks = [(i, tree_sequence) for i, tree_sequence in enumerate(ts)]
 chunked_data = [chunks[i:i + chunk_size] for i in range(0, len(chunks), chunk_size)]
 
