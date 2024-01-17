@@ -79,7 +79,7 @@ def split(N_A, N_B, N_C, N_D, split_time1, split_time2, sample_A, sample_B, samp
     
     ts = msprime.simulate(population_configurations=population_configurations,
                          demographic_events=demographic_events, length=seg_length, 
-                         num_replicates=target_n_snps, mutation_rate=mut_rate)
+                         num_replicates=target_n_snps)
                          
     return ts
 
@@ -95,8 +95,9 @@ header = []
 
 def process_tree_sequence(i, tree_sequence):
 
-    if i % 1000 == 0:
-        print("Simulating ~SNP {}".format(i))
+    #if i % 1000 == 0:
+    print("Simulating ~SNP {}".format(i))
+    tree_sequence = msprime.mutate(tree_sequence,rate=args.mu)
     
     # Extract Haplotype
     H = tree_sequence.genotype_matrix()
