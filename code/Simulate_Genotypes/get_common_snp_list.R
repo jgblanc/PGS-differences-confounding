@@ -19,9 +19,12 @@ gp <- fread(gpFile, header = T)
 # Subset variants
 t <- subset(tp, tp$ALT_FREQS > 0.01 & tp$ALT_FREQS < 0.99)
 g <- subset(gp, gp$ALT_FREQS > 0.01 & gp$ALT_FREQS < 0.99)
+print(paste0("The Test SNP number is ", nrow(t)))
+print(paste0("The GWAS SNP number is ", nrow(g)))
+
 
 # Merge to include only variants passing frequency filter in both panels
-dat <- merge(t,g, by=c("#CHROM","ID"))
+dat <- inner_join(t,g, by=c("#CHROM","ID"))
 
 # Randomly sample only nSNP number of SNPs
 dat <- dat %>% sample_n(nSNP)

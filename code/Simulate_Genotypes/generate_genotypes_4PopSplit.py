@@ -116,7 +116,7 @@ def simulate_snp(i):
             if line_number == idx + 7:
                 target_line = line.strip()
                 fields = target_line.strip().split("\t")
-                fields[1] = fields[0]
+                fields[1] = str(i)
                 fields[0] = str(args.chrom_num)
                 target_line = "\t".join(fields)
                 break
@@ -150,7 +150,7 @@ for chunk_start in range(0, args.nsnp, chunk_size):
 print("Writing VCF")
 # Write outout vcf
 output = list(filter(lambda x: x is not None, output))
-print(output)
+#print(output)
 header.extend(output)
 with open(args.outpre+".vcf","w") as vcf_file:
      for item in header:
