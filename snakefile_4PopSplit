@@ -50,10 +50,10 @@ rule simulate_genotypes_4popsplit:
     output:
         "output/Simulate_Genotypes/4PopSplit/{rep}/genos.vcf",
 	"output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
-    threads: 16
-    resources:
-        mem_mb=128000,
-	time="12:00:00"
+#    threads: 16
+#    resources:
+#        mem_mb=128000,
+#	time="12:00:00"
     shell:
         """
         python3 -u code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
