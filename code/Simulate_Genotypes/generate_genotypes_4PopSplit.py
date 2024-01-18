@@ -73,28 +73,20 @@ def make_tree(population_configurations, demographic_events):
     # Simulate Tree
     ts = msprime.simulate(population_configurations=population_configurations,
          demographic_events=demographic_events, length=args.length)
-    print("Made Tree")
+    #print("Made Tree")
     
     # Add mutations
     ts = msprime.mutate(ts,rate=args.mu)
-    print("Added mutations")
+    #print("Added mutations")
     
     return ts
 
-
-def allele_frequencies(ts, sample_sets=None):
-    if sample_sets is None:
-       sample_sets = [ts.samples()] 
-    n = np.array([len(x) for x in sample_sets])
-    def f(x):
-       return x / n
-    return ts.sample_count_stat(sample_sets, f, len(sample_sets), windows='sites', polarised=True, mode='site', strict=False, span_normalise=False)
 
 output = []
 header = []
 
 
-for i in range(0, args.nsnp):
+def simulate_snp(i):
     
     #if i % 100 == 0:
     print("Simulating ~SNP {}".format(i))
@@ -102,20 +94,6 @@ for i in range(0, args.nsnp):
     # Make Tree 
     tree_sequence = make_tree(population_configurations, demographic_events)
 
-    # Get SNP global frequencies
-    #snp_frequencies = allele_frequencies(tree_sequence)
-    #print(snp_frequencies)
-    
-    # Find singleton frequencies 
-    #threshold = 30 / nTotal
-    #selected_indices = np.where(snp_frequencies > threshold)[0]
-     
-    # Select random SNP
-    #if len(selected_indices) > 0:
-    #    idx = np.random.choice(selected_indices, 1)
-    #else:
-    #    continue
-    #print(idx)
     idx=0
     
     # Save to VCF
@@ -136,10 +114,16 @@ for i in range(0, args.nsnp):
         for line_number, line in enumerate(file, start=1):
             if line_number == idx + 7:
                 target_line = line.strip()
-                output.append(target_line)
+                #output.append(target_line)
         
     # Remove VCF file
     os.remove(args.outpre + "_" + str(i) + ".vcf")
+    
+    return target_line
+
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    # Simulate SNPs concurrently
+    results = list(executor.map(simulate_snp, range(args.nsnp)))
 
 
 # Function to process a chunk of the loop
@@ -158,7 +142,7 @@ for i in range(0, args.nsnp):
 #    all_results = executor.map(process_chunk, chunked_data)
 
 # Write outout vcf 
-header.extend(output)
+header.extend(results)
 with open(args.outpre+".vcf","w") as vcf_file:
      for item in header:
             vcf_file.write(str(item) + '\n')
