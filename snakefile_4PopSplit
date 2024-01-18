@@ -72,7 +72,7 @@ rule simulate_genotypes_4popsplit:
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 100000
+        -nsnp 100
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos_*
         """
 

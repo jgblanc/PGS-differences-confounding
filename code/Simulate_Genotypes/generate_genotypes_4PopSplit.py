@@ -115,6 +115,7 @@ def simulate_snp(i):
             try:
                 if line_number == idx + 7:
                     target_line = line.strip()
+                    break
             except:
                 target_line = None
         
@@ -123,29 +124,31 @@ def simulate_snp(i):
     
     return target_line
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    # Simulate SNPs concurrently
-    results = list(executor.map(simulate_snp, range(args.nsnp)))
-
-
-# Function to process a chunk of the loop
-#def process_chunk(chunk):
-#    for i, tree_sequence in chunk:
-#        process_tree_sequence(i, tree_sequence)
-
-
-# Chunk the tree sequence for parallel processing
-#chunk_size = 1000  # You can adjust this based on the optimal size for your task
-#chunks = [(i, tree_sequence) for i, tree_sequence in enumerate(ts)]
-#chunked_data = [chunks[i:i + chunk_size] for i in range(0, len(chunks), chunk_size)]
-
-# Use ThreadPoolExecutor for parallel execution
 #with concurrent.futures.ThreadPoolExecutor() as executor:
-#    all_results = executor.map(process_chunk, chunked_data)
+#    # Simulate SNPs concurrently
+#    results = list(executor.map(simulate_snp, range(args.nsnp)))
+
+def process_snp_chunk(chunk):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        return list(executor.map(simulate_snp, chunk))
+
+# Chunk size (100 SNPs at a time)
+chunk_size = 10
+
+# Process SNPs in chunks
+for chunk_start in range(0, args.nsnp, chunk_size):
+    chunk_end = min(chunk_start + chunk_size, args.nsnp)
+    snp_chunk = range(chunk_start, chunk_end)
+
+    # Set up concurrent execution for each chunk
+    chunk_results = process_snp_chunk(snp_chunk)
+    output.extend(chunk_results)
+
+print(output)
 
 print("Writing VCF")
 # Write outout vcf 
-header.extend(results)
+header.extend(output)
 with open(args.outpre+".vcf","w") as vcf_file:
      for item in header:
             vcf_file.write(str(item) + '\n')
