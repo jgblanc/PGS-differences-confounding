@@ -88,8 +88,8 @@ header = []
 
 def simulate_snp(i):
     
-    #if i % 100 == 0:
-    print("Simulating ~SNP {}".format(i))
+    if i % 100 == 0:
+        print("Simulating ~SNP {}".format(i))
     
     # Make Tree 
     tree_sequence = make_tree(population_configurations, demographic_events)
@@ -133,7 +133,7 @@ def process_snp_chunk(chunk):
         return list(executor.map(simulate_snp, chunk))
 
 # Chunk size (100 SNPs at a time)
-chunk_size = 10
+chunk_size = 100
 
 # Process SNPs in chunks
 for chunk_start in range(0, args.nsnp, chunk_size):
