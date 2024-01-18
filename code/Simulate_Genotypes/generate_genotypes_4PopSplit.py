@@ -36,79 +36,76 @@ args=parser.parse_args()
 
 print(args)
 
-
-# Define Function to generate tree sequency under 4 population split model - single population splits into 2 at `split_time_1` and each of those populations splits into 2 at `split_time_2`
-def split(N_A, N_B, N_C, N_D, split_time1, split_time2, sample_A, sample_B, sample_C, sample_D, seg_length, recomb_rate, mut_rate, N_anc, target_n_snps):
-
-    # Times are provided in years, so we convert into generations.
-    generation_time = 25
-    T_S1 = split_time1 / generation_time
-    T_S2 = split_time2 / generation_time
+# Times are provided in years, so we convert into generations.
+generation_time = 25
+T_S1 = args.split_time1 / generation_time
+T_S2 = args.split_time2 / generation_time
 
 
-    # Population IDs correspond to their indexes in the population
-    # configuration array. Therefore, we have 0=A, 1=B, 2=C, 3=D initially.
-    population_configurations = [
-        msprime.PopulationConfiguration(
-            sample_size=sample_A, initial_size=N_A),
-        msprime.PopulationConfiguration(
-            sample_size=sample_B, initial_size=N_B), 
-        msprime.PopulationConfiguration(
-            sample_size=sample_C, initial_size=N_C),
-        msprime.PopulationConfiguration(
-            sample_size=sample_D, initial_size=N_D)
-    ]
+# Population IDs correspond to their indexes in the population
+# configuration array. Therefore, we have 0=A, 1=B, 2=C, 3=D initially.
+population_configurations = [
+    msprime.PopulationConfiguration(
+        sample_size=args.sample_A, initial_size=args.NA),
+    msprime.PopulationConfiguration(
+        sample_size=args.sample_B, initial_size=args.NB), 
+    msprime.PopulationConfiguration(
+        sample_size=args.sample_C, initial_size=args.NC),
+    msprime.PopulationConfiguration(
+        sample_size=args.sample_D, initial_size=args.NA)
+]
 
-    demographic_events = [
-        msprime.MassMigration(
-            time=T_S2, source=3, destination=2, proportion=1.0),
-        msprime.MassMigration(
-            time=T_S2, source=1, destination=0, proportion=1.0),
-        msprime.MassMigration(
-            time=T_S1, source=2, destination = 0, proportion=1.0),
-        msprime.PopulationParametersChange(
-            time=T_S1, initial_size=N_anc, growth_rate=0, population_id=0)
-    ]
+demographic_events = [
+    msprime.MassMigration(
+        time=T_S2, source=3, destination=2, proportion=1.0),
+    msprime.MassMigration(
+        time=T_S2, source=1, destination=0, proportion=1.0),
+    msprime.MassMigration(
+        time=T_S1, source=2, destination = 0, proportion=1.0),
+    msprime.PopulationParametersChange(
+        time=T_S1, initial_size=args.Nanc, growth_rate=0, population_id=0)
+]
+nTotal = args.sample_A + args.sample_B + args.sample_C + args.sample_D
+print(nTotal)
+
+def make_tree(population_configurations, demographic_events):
     
-    # Use the demography debugger to print out the demographic history
-    # that we have just described.
-    #dd = msprime.DemographyDebugger(
-    #    population_configurations=population_configurations,
-    #    demographic_events=demographic_events)
-    #dd.print_history()
-    
+    # Simulate Tree
     ts = msprime.simulate(population_configurations=population_configurations,
-                         demographic_events=demographic_events, length=seg_length, 
-                         num_replicates=target_n_snps)
-                         
+         demographic_events=demographic_events, length=args.length)
+    
+    # Add mutations
+    ts = msprime.mutate(ts,rate=args.mu)
+    
     return ts
 
-# Generate Tree Sequences and Save to VCF
 
-print("simulating genotypes under demographic model")
-ts = split(args.NA, args.NB, args.NC, args.ND, args.split_time1, args.split_time2, args.sample_A, args.sample_B, args.sample_C, args.sample_D, 
-args.length, args.rho, args.mu, args.Nanc, args.nsnp)
-
+def allele_frequencies(ts, sample_sets=None):
+    if sample_sets is None:
+       sample_sets = [ts.samples()] 
+    n = np.array([len(x) for x in sample_sets])
+    def f(x):
+       return x / n
+    return ts.sample_count_stat(sample_sets, f, len(sample_sets), windows='sites', polarised=True, mode='site', strict=False, span_normalise=False)
 
 output = []
 header = []
 
-def process_tree_sequence(i, tree_sequence):
 
-    #if i % 1000 == 0:
-    print("Simulating ~SNP {}".format(i))
-    tree_sequence = msprime.mutate(tree_sequence,rate=args.mu)
+for i in range(0, args.nsnp):
     
-    # Extract Haplotype
-    H = tree_sequence.genotype_matrix()
-    p, n = H.shape
+    if i % 100 == 0:
+        print("Simulating ~SNP {}".format(i))
     
-    
+    # Make Tree 
+    tree_sequence = make_tree(population_configurations, demographic_events)
+ 
     # Get SNP global frequencies
-    snp_frequencies = np.sum(H, axis=1) / (n)
+    snp_frequencies = allele_frequencies(tree_sequence)
+    #print(snp_frequencies)
     
     # Find singleton frequencies 
-    threshold = 30 / n
+    threshold = 30 / nTotal
     selected_indices = np.where(snp_frequencies > threshold)[0]
      
     # Select random SNP
@@ -140,19 +137,19 @@ def process_tree_sequence(i, tree_sequence):
 
 
 # Function to process a chunk of the loop
-def process_chunk(chunk):
-    for i, tree_sequence in chunk:
-        process_tree_sequence(i, tree_sequence)
+#def process_chunk(chunk):
+#    for i, tree_sequence in chunk:
+#        process_tree_sequence(i, tree_sequence)
 
 
 # Chunk the tree sequence for parallel processing
-chunk_size = 1000  # You can adjust this based on the optimal size for your task
-chunks = [(i, tree_sequence) for i, tree_sequence in enumerate(ts)]
-chunked_data = [chunks[i:i + chunk_size] for i in range(0, len(chunks), chunk_size)]
+#chunk_size = 1000  # You can adjust this based on the optimal size for your task
+#chunks = [(i, tree_sequence) for i, tree_sequence in enumerate(ts)]
+#chunked_data = [chunks[i:i + chunk_size] for i in range(0, len(chunks), chunk_size)]
 
 # Use ThreadPoolExecutor for parallel execution
-with concurrent.futures.ThreadPoolExecutor() as executor:
-    all_results = executor.map(process_chunk, chunked_data)
+#with concurrent.futures.ThreadPoolExecutor() as executor:
+#    all_results = executor.map(process_chunk, chunked_data)
 
 # Write outout vcf 
 header.extend(output)
