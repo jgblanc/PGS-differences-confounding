@@ -64,15 +64,15 @@ rule simulate_genotypes_4popsplit:
 	      --NB 10000 \
 	      --NC 10000 \
 	      --ND 10000 \
-  	    -a 100000 \
-	      -b 100000 \
-	      -c 100000 \
-	      -d 100000 \
+  	    -a 10000 \
+	      -b 10000 \
+	      -c 10000 \
+	      -d 10000 \
         -s1 4400 \
         -s2 2200 \
         -L 1 \
-        -u 1e-3  \
-        -nsnp 100
+        -u 1e-5  \
+        -nsnp 100000
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos_*
         """
 

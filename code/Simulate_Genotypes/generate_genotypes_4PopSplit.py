@@ -112,9 +112,11 @@ def simulate_snp(i):
         
         # Read the ith line and append it to the list
         for line_number, line in enumerate(file, start=1):
-            if line_number == idx + 7:
-                target_line = line.strip()
-                #output.append(target_line)
+            try:
+                if line_number == idx + 7:
+                    target_line = line.strip()
+            except:
+                target_line = None
         
     # Remove VCF file
     os.remove(args.outpre + "_" + str(i) + ".vcf")
@@ -141,6 +143,7 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
 #with concurrent.futures.ThreadPoolExecutor() as executor:
 #    all_results = executor.map(process_chunk, chunked_data)
 
+print("Writing VCF")
 # Write outout vcf 
 header.extend(results)
 with open(args.outpre+".vcf","w") as vcf_file:
