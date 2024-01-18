@@ -73,9 +73,11 @@ def make_tree(population_configurations, demographic_events):
     # Simulate Tree
     ts = msprime.simulate(population_configurations=population_configurations,
          demographic_events=demographic_events, length=args.length)
+    print("Made Tree")
     
     # Add mutations
     ts = msprime.mutate(ts,rate=args.mu)
+    print("Added mutations")
     
     return ts
 
@@ -94,24 +96,28 @@ header = []
 
 for i in range(0, args.nsnp):
     
-    if i % 100 == 0:
-        print("Simulating ~SNP {}".format(i))
+    #if i % 100 == 0:
+    print("Simulating ~SNP {}".format(i))
     
     # Make Tree 
     tree_sequence = make_tree(population_configurations, demographic_events)
- 
+
     # Get SNP global frequencies
-    snp_frequencies = allele_frequencies(tree_sequence)
+    #snp_frequencies = allele_frequencies(tree_sequence)
     #print(snp_frequencies)
     
     # Find singleton frequencies 
-    threshold = 30 / nTotal
-    selected_indices = np.where(snp_frequencies > threshold)[0]
+    #threshold = 30 / nTotal
+    #selected_indices = np.where(snp_frequencies > threshold)[0]
      
     # Select random SNP
-    if len(selected_indices) > 0:
-        idx = np.random.choice(selected_indices, 1)
-
+    #if len(selected_indices) > 0:
+    #    idx = np.random.choice(selected_indices, 1)
+    #else:
+    #    continue
+    #print(idx)
+    idx=0
+    
     # Save to VCF
     #print("writing genotype to vcf file")
     with open(args.outpre + "_" + str(i) + ".vcf", "w") as vcf_file:
