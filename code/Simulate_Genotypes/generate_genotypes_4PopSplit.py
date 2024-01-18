@@ -66,7 +66,7 @@ demographic_events = [
         time=T_S1, initial_size=args.Nanc, growth_rate=0, population_id=0)
 ]
 nTotal = args.sample_A + args.sample_B + args.sample_C + args.sample_D
-print(nTotal)
+
 
 def make_tree(population_configurations, demographic_events):
     
@@ -99,7 +99,7 @@ def simulate_snp(i):
     # Save to VCF
     #print("writing genotype to vcf file")
     with open(args.outpre + "_" + str(i) + ".vcf", "w") as vcf_file:
-        tree_sequence.write_vcf(vcf_file, ploidy=args.ploidy, contig_id=1 + i)
+        tree_sequence.write_vcf(vcf_file, ploidy=args.ploidy, contig_id=args.chrom_num)
         
     # Read in VCF
     #print("reading vcf")
@@ -111,13 +111,15 @@ def simulate_snp(i):
             header.extend(first_six_lines)
         
         # Read the ith line and append it to the list
+        target_line = None
         for line_number, line in enumerate(file, start=1):
-            try:
-                if line_number == idx + 7:
-                    target_line = line.strip()
-                    break
-            except:
-                target_line = None
+            if line_number == idx + 7:
+                target_line = line.strip()
+                fields = target_line.strip().split("\t")
+                fields[1] = fields[0]
+                fields[0] = str(args.chrom_num)
+                target_line = "\t".join(fields)
+                break
         
     # Remove VCF file
     os.remove(args.outpre + "_" + str(i) + ".vcf")
@@ -144,7 +146,6 @@ for chunk_start in range(0, args.nsnp, chunk_size):
     chunk_results = process_snp_chunk(snp_chunk)
     output.extend(chunk_results)
 
-print(output)
 
 print("Writing VCF")
 # Write outout vcf 
