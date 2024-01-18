@@ -5,7 +5,7 @@ REP = []
 for i in range(1,2):
   REP.append("A"+str(i))
 CHR = []
-for i in range(1,10):
+for i in range(1,501):
   CHR.append(str(i))
 GWAS_SIZE=["gp-1000", "gp-10000", "gp-100000"]
 TEST_SIZE=["tp-1000", "tp-10000", "tp-100000"]
@@ -76,7 +76,7 @@ rule simulate_genotypes_4popsplit:
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 10
+        -nsnp 1000
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos-{wildcards.chr}_*
         """
 

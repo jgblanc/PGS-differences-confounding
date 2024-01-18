@@ -111,7 +111,7 @@ def simulate_snp(i):
             header.extend(first_six_lines)
         
         # Read the ith line and append it to the list
-        target_line = None
+        target_line=None
         for line_number, line in enumerate(file, start=1):
             if line_number == idx + 7:
                 target_line = line.strip()
@@ -148,7 +148,9 @@ for chunk_start in range(0, args.nsnp, chunk_size):
 
 
 print("Writing VCF")
-# Write outout vcf 
+# Write outout vcf
+output = list(filter(lambda x: x is not None, output))
+print(output)
 header.extend(output)
 with open(args.outpre+".vcf","w") as vcf_file:
      for item in header:
