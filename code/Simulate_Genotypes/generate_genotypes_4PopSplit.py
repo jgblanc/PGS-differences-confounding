@@ -65,27 +65,30 @@ demographic_events = [
     msprime.PopulationParametersChange(
         time=T_S1, initial_size=args.Nanc, growth_rate=0, population_id=0)
 ]
+
+# Get total sample size 
 nTotal = args.sample_A + args.sample_B + args.sample_C + args.sample_D
 
 
+# Function to simulate individual trees and add mutations 
 def make_tree(population_configurations, demographic_events):
     
     # Simulate Tree
     ts = msprime.simulate(population_configurations=population_configurations,
          demographic_events=demographic_events, length=args.length)
-    #print("Made Tree")
     
     # Add mutations
     ts = msprime.mutate(ts,rate=args.mu)
-    #print("Added mutations")
-    
+
+    # Return tree sequence 
     return ts
 
 
+# Set up output containers 
 output = []
 header = []
 
-
+# Function to Simulate SNPs 
 def simulate_snp(i):
     
     if i % 100 == 0:
@@ -148,9 +151,8 @@ for chunk_start in range(0, args.nsnp, chunk_size):
 
 
 print("Writing VCF")
-# Write outout vcf
+# Write outout vcf, removing trees with no snps 
 output = list(filter(lambda x: x is not None, output))
-#print(output)
 header.extend(output)
 with open(args.outpre+".vcf","w") as vcf_file:
      for item in header:
