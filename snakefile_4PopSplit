@@ -1,18 +1,22 @@
 ## Snakefile to run 4 Pop Simulations
 
 CONFIG=["C1", "C2"]
-REP = []
-for i in range(1,6):
-  REP.append("A"+str(i))
+
+# Small
+#REP = ["A1"]
+#CHR = []
+#for i in range(1,21):
+#  CHR.append(str(i))
+#NSNP = ["L-300"]
+
+# Big
+REP = ["A1"]
+#for i in range(1,51):
+#  REP.append("A"+str(i))
 CHR = []
-for i in range(1,10):
+for i in range(1,501):
   CHR.append(str(i))
-GWAS_SIZE=["gp-1000", "gp-10000"]
-TEST_SIZE=["tp-100", "tp-1000", "tp-10000"]
-#NSNP = ["L-100" , "L-1000", "L-10000"]
-NSNP = ["L-100"]
-#NUM_RESAMPLE=1000
-#PVALUE_THRESHOLD=1
+NSNP = ["L-100" , "L-1000", "L-10000"]
 
 
 ### No Signal - Figures 1, S1, S2
@@ -59,7 +63,7 @@ rule simulate_genotypes_4popsplit:
     output:
         "output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.vcf",
 	"output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.pop"
-#    threads: 16
+#    threads: 1
 #    resources:
 #        mem_mb=50000,
 #	time="02:00:00"
@@ -67,7 +71,6 @@ rule simulate_genotypes_4popsplit:
         """
         python3 -u code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
 	      --outpre output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos-{wildcards.chr} \
-	      --chr 1 \
        	--Nanc 10000 \
 	      --NA 10000 \
 	      --NB 10000 \
@@ -288,8 +291,76 @@ rule simulate_phenotype_4PopSplit:
         Rscript code/Simulate_Phenotypes/simulate_phenotypes_4PopSplit.R {input.gvalues} {input.pops} {output} {params.her} {params.en}
         """
 
+#########################
+##### Compute FGr #######
+#########################
 
+rule make_test_vector:
+    input:
+        "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.test"
+    output:
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/Tvec.txt"
+    shell:
+        """
+        Rscript code/Calculate_FGr/make_tvec_4PopSplit.R  {input} {output}
+        """
 
+rule compute_FGr:
+    input:
+        genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+        test = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.test",
+        gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+        tvec = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/Tvec.txt",
+        snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+    output:
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/FGr-{nsnp}.txt"
+    params:
+        plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+        out_prefix = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/"
+    shell:
+        """
+        Rscript code/Calculate_FGr/calc_FGr.R {params.plink_prefix} {input.tvec} {input.test} {input.gwas} {input.snps} {params.out_prefix} {output}
+ 		    """
 
+######################
+##### GWAS PCA #######
+######################
+
+rule GWAS_PCA:
+    input:
+        genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+        gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+        snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+    output:
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec",
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenval"
+    params:
+        plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+        out_prefix = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}"
+    shell:
+        """
+        plink2 \
+	      --pfile {params.plink_prefix} \
+	      --keep {input.gwas} \
+	      --extract {input.snps} \
+	      --out {params.out_prefix} \
+		    --pca 10 approx
+		    """
+
+######################
+##### Run GWAS #######
+######################
+
+rule format_covars:
+    input:
+      pops = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop",
+      FGr = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/FGr-{nsnp}.txt",
+      PC = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec"
+    output:
+      "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt",
+    shell:
+      """
+      Rscript code/Run_GWAS/format_covars.R {input.pops} {input.FGr} {input.PC} {output}
+      """
 
 
