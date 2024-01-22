@@ -1,6 +1,8 @@
 ## Snakefile to run 4 Pop Simulations
 
 CONFIG=["C1", "C2"]
+GWAS_SIZE=["gp-1000", "gp-10000"]
+TEST_SIZE=["tp-100", "tp-1000", "tp-10000"]
 
 # Small
 #REP = ["A1"]
