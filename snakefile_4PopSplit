@@ -29,7 +29,7 @@ NSNP = ["L-300" , "L-1000", "L-10000"]
 HERITABILITY = ["h2-0.0"]
 ENV = ["env_0.0", "env_1.0"]
 TS=["p-0.50"]
-NUM_CAUSAL = ["c-50"]
+NUM_CAUSAL = ["c-50", "c-200"]
 
 
 ### Signal - Figures 2
