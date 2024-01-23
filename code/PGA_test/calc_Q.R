@@ -128,7 +128,7 @@ for (i in 1:num_resample){
   redraws[i,] <- en(ncX, ncbetas$BETA_Strat, Tvec)
 }
 all_strat <- redraws[,1]
-ncP <- length(all_strat[abs(all_strat) > abs(cQ[1,1])]) /length(all_strat)
+ncP <- length(all_strat[abs(all_strat) > abs(ncQ[1,1])]) /length(all_strat)
 
 # Get names
 tmp <- strsplit(outfile, "/")[[1]][12]
