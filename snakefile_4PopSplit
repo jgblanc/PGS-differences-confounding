@@ -495,6 +495,7 @@ rule pick_SNPS:
     shell:
       """
       Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
+      rm {input.gwas}
       """
 
 ########################
@@ -516,4 +517,6 @@ rule Calc_Qx:
   shell:
     """
     Rscript code/PGA_test/calc_Q.R {params.plink_prefix} {input.c} {input.nc} {input.Tvec} {input.es} {params.num} {output}
+    rm {input.c}
+    rm {input.nc}
     """
