@@ -3,6 +3,10 @@
 CONFIG=["C1", "C2"]
 GWAS_SIZE=["gp-1000", "gp-10000"]
 TEST_SIZE=["tp-100", "tp-1000", "tp-10000"]
+PC=["1", "2"]
+CORRECTION = PC + ["FGr", "NoCorrection", "ID"]
+NUM_RESAMPLE = 1000
+
 
 # Small
 #REP = ["A1"]
@@ -23,7 +27,7 @@ NSNP = ["L-300" , "L-1000", "L-10000"]
 
 ### No Signal - Figures 1, S1, S2
 HERITABILITY = ["h2-0.0"]
-ENV = ["env_0.0", "env_0.1"]
+ENV = ["env_0.0", "env_1.0"]
 TS=["p-0.50"]
 NUM_CAUSAL = ["c-50"]
 
@@ -42,7 +46,8 @@ wildcard_constraints:
   ts="p-[0-1].[0-9][0-9]",
   gwas_size="gp-[0-9]*",
   test_size="tp-[0-9]*",
-  dir="[a-z]*"
+  dir="[a-z]*",
+  pc = "[0-9]*"
 
 def get_params(x):
   out = x.split("-")[1]
@@ -52,9 +57,17 @@ def get_env(x):
   out = x.split("_")[1]
   return out
 
+def get_pc_num(x):
+  end = str(int(x) + 5)
+  start = str(6)
+  out = start + "-" + end
+  if int(x) == 1:
+     out = str(6)
+  return out
+
 rule all:
     input:
-        expand("output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV)
+        expand("output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/q-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
 
 
 ########################
@@ -284,7 +297,7 @@ rule simulate_phenotype_4PopSplit:
         gvalues="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.gvalue.sscore",
         pops="output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
     output:
-        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt"
+        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt"
     params:
         her = lambda wildcards: get_params(wildcards.h2),
         en = lambda wildcards: get_env(wildcards.env)
@@ -365,5 +378,142 @@ rule format_covars:
       Rscript code/Run_GWAS/format_covars.R {input.pops} {input.FGr} {input.PC} {output}
       """
 
+rule gwas_no_correction:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt"
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_NoCorrection.pheno_strat.glm.linear"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_NoCorrection"
+  shell:
+      """
+      plink2 \
+      --pfile {params.plink_prefix} \
+      --keep {input.gwas} \
+      --extract {input.snps} \
+      --glm allow-no-covars \
+      --pheno {input.pheno} \
+      --pheno-name pheno_strat \
+      --out {params.out_prefix}
+      """
 
+rule gwas_FGr:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt",
+      covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt"
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_FGr.pheno_strat.glm.linear"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_FGr"
+  shell:
+      """
+      plink2 \
+      --pfile {params.plink_prefix} \
+      --keep {input.gwas} \
+      --extract {input.snps} \
+      --glm hide-covar \
+      --pheno {input.pheno} \
+      --pheno-name pheno_strat \
+      --covar {input.covar} \
+      --covar-col-nums 4 \
+      --out {params.out_prefix}
+      """
 
+rule gwas_ID:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt",
+      covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt"
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_ID.pheno_strat.glm.linear"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_ID"
+  shell:
+      """
+      plink2 \
+      --pfile {params.plink_prefix} \
+      --keep {input.gwas} \
+      --extract {input.snps} \
+      --glm  hide-covar \
+      --pheno {input.pheno} \
+      --pheno-name pheno_strat \
+      --covar {input.covar} \
+      --covar-col-nums 5 \
+      --out {params.out_prefix}
+      """
+
+rule gwas_PCs:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt",
+      covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt"
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_{pc}.pheno_strat.glm.linear"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_{pc}"
+  shell:
+      """
+      plink2 \
+      --pfile {params.plink_prefix} \
+      --keep {input.gwas} \
+      --extract {input.snps} \
+      --glm hide-covar \
+      --pheno {input.pheno} \
+      --pheno-name pheno_strat \
+      --covar {input.covar} \
+      --covar-col-nums 6 \
+      --out {params.out_prefix}
+      """
+
+######################
+### Ascertain SNPs ###
+######################
+
+rule pick_SNPS:
+    input:
+      causal_effect="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.effects.txt",
+      gwas="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos_gwas_{nsnp}_{correction}.pheno_strat.glm.linear"
+    output:
+      c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas_{nsnp}_{correction}.c.betas",
+      nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas_{nsnp}_{correction}.nc.betas"
+    params:
+      num_snps = lambda wildcards: get_params(wildcards.nc)
+    shell:
+      """
+      Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
+      """
+
+########################
+### Association Test ###
+########################
+
+rule Calc_Qx:
+  input:
+    c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas_{nsnp}_{correction}.c.betas",
+    nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/genos-gwas_{nsnp}_{correction}.nc.betas",
+    genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+    Tvec="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/Tvec.txt",
+    es="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.effects.txt"
+  output:
+    qx="output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/q-{correction}_{nsnp}.txt"
+  params:
+    num=NUM_RESAMPLE,
+    plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos"
+  shell:
+    """
+    Rscript code/PGA_test/calc_Q.R {params.plink_prefix} {input.c} {input.nc} {input.Tvec} {input.es} {params.num} {output}
+    """
