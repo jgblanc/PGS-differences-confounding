@@ -41,7 +41,6 @@ causal$CHROM=as.numeric(causal$CHROM)
 # Read in GWAS results
 gwas1=fread(gwas_file,fill=T)
 colnames(gwas1)[1]="CHROM"
-print(head(gwas1))
 
 # Flip to get correct effect sizes
 gwas1 = flip_effect(gwas1,beta_colname = "BETA1")

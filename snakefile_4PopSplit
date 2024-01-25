@@ -17,7 +17,7 @@ NUM_RESAMPLE = 1000
 
 # Big
 REP = []
-for i in range(1,3):
+for i in range(1,51):
   REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
