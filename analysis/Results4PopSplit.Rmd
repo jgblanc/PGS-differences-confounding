@@ -25,7 +25,7 @@ for (i in 2:50) {
 dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()) )
 
 
-dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = fp_strat, color = type)) + geom_point() + facet_wrap(~L)
+dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = fp_strat, color = type)) + geom_point() + facet_wrap(~L) + geom_errorbar(aes(ymin = lowerci_fp, ymax = upperci_fp))
 
 dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point() + facet_wrap(~L)
 

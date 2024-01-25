@@ -1,25 +1,37 @@
 ## Snakefile to run 4 Pop Simulations
 
 CONFIG=["C1", "C2"]
+GWAS_SIZE=["gp-1000", "gp-10000"]
+TEST_SIZE=["tp-100", "tp-1000", "tp-10000"]
+PC=["1"]
+CORRECTION = PC + ["FGr", "NoCorrection", "ID"]
+NUM_RESAMPLE = 1000
+
+
+# Small
+#REP = ["A1"]
+#CHR = []
+#for i in range(1,21):
+#  CHR.append(str(i))
+#NSNP = ["L-300"]
+#ENV = ["env_0.0","env_0.1"]
+#NUM_CAUSAL = ["c-50"]
+
+# Big
 REP = []
-for i in range(21,51):
+for i in range(51,101):
   REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-GWAS_SIZE=["gp-1000", "gp-10000"]
-TEST_SIZE=["tp-100", "tp-1000", "tp-10000"]
-NSNP = ["L-100" , "L-1000", "L-10000"]
-#NSNP = ["L-100"]
-#NUM_RESAMPLE=1000
-#PVALUE_THRESHOLD=1
+NSNP = ["L-300" , "L-1000", "L-10000"]
+ENV = ["env_0.0", "env_0.01", "env_0.03", "env_0.1"]
+NUM_CAUSAL = ["c-300"]
 
 
 ### No Signal - Figures 1, S1, S2
 HERITABILITY = ["h2-0.0"]
-ENV = ["env_0.0", "env_0.1"]
 TS=["p-0.50"]
-NUM_CAUSAL = ["c-50"]
 
 
 ### Signal - Figures 2
@@ -36,7 +48,8 @@ wildcard_constraints:
   ts="p-[0-1].[0-9][0-9]",
   gwas_size="gp-[0-9]*",
   test_size="tp-[0-9]*",
-  dir="[a-z]*"
+  dir="[a-z]*",
+  pc = "[0-9]*"
 
 def get_params(x):
   out = x.split("-")[1]
@@ -46,23 +59,31 @@ def get_env(x):
   out = x.split("_")[1]
   return out
 
+def get_pc_num(x):
+  end = str(int(x) + 5)
+  start = str(6)
+  out = start + "-" + end
+  if int(x) == 1:
+     out = str(6)
+  return out
+
 rule all:
     input:
-        expand("output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV)
+        expand("output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
 
 
-########################
-## Simluate Genotypes ##
-########################
+##########################
+### Simluate Genotypes ###
+##########################
 
 rule simulate_genotypes_4popsplit:
     output:
         "output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.vcf",
 	"output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.pop"
-    threads: 1
-    resources:
-        mem_mb=50000,
-	time="02:00:00"
+#    threads: 1
+#    resources:
+#        mem_mb=50000,
+#	time="02:00:00"
     shell:
         """
         python3 -u code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
@@ -81,7 +102,7 @@ rule simulate_genotypes_4popsplit:
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 1000
+        -nsnp 100
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos-{wildcards.chr}_*
         """
 
@@ -229,66 +250,3 @@ rule calculate_fst:
 	      --fst POP \
 	      --out {params.out_test}
 		    """
-
-#########################
-## Simluate Phenotypes ##
-#########################
-
-rule draw_effect_sizes:
-    input:
-        freq = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas.afreq",
-        pops = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop",
-        test = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.test",
-        snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
-    output:
-        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.effects.txt"
-    params:
-        her = lambda wildcards: get_params(wildcards.h2),
-        prob = lambda wildcards: get_params(wildcards.ts),
-        nc = lambda wildcards: get_params(wildcards.nc),
-        geno_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos"
-    shell:
-        """
-        Rscript code/Simulate_Phenotypes/draw_effect_sizes_4PopSplit.R {input.freq} {output} {params.her} 0.4 {input.test} {input.pops} {params.prob} {params.nc} {params.geno_prefix} {input.snps}
-        """
-
-rule generate_genetic_values:
-    input:
-        psam = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
-        effects = "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.effects.txt",
-        IDs = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-        snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
-    output:
-        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.gvalue.sscore"
-    params:
-        plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-        out_prefix = "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.gvalue"
-    shell:
-        """
-        plink2 \
-	      --pfile {params.plink_prefix} \
-	      --out {params.out_prefix} \
-	      --keep {input.IDs} \
-	      --extract {input.snps} \
-		    --score {input.effects} cols=dosagesum,scoresums
-		    """
-
-rule simulate_phenotype_4PopSplit:
-    input:
-        gvalues="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/genos-gwas-{nsnp}.gvalue.sscore",
-        pops="output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
-    output:
-        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}{h2}/{ts}/{nc}/{env}/genos-gwas-{nsnp}.phenos.txt"
-    params:
-        her = lambda wildcards: get_params(wildcards.h2),
-        en = lambda wildcards: get_env(wildcards.env)
-    shell:
-        """
-        Rscript code/Simulate_Phenotypes/simulate_phenotypes_4PopSplit.R {input.gvalues} {input.pops} {output} {params.her} {params.en}
-        """
-
-
-
-
-
-
