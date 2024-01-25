@@ -69,7 +69,8 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/A/q_{rep}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/A/error.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION),
+        expand("plots/A/q.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -523,17 +524,80 @@ rule Calc_Qx:
     rm {input.nc}
     """
 
+####################################
+### Compute Error in FGr and PCs ###
+####################################
+
+rule compute_FGr_Error:
+    input:
+        Pops = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop",
+        FGr = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/FGr-{nsnp}.txt"
+    output:
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/errorFGr-{nsnp}.txt"
+    shell:
+        """
+        Rscript code/Calculate_FGr/calc_error_4PopSplit.R {input.Pops} {input.FGr} {output}
+ 		    """
+
+rule compute_PCA_Error:
+    input:
+        Pops = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop",
+        PCA = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec"
+    output:
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/errorPCA-{nsnp}.txt"
+    shell:
+        """
+        Rscript code/Calculate_FGr/calc_error_4PopSplit.R {input.Pops} {input.PCA} {output}
+ 		    """
+
 ###########################
 ### Concatenate Results ###
 ###########################
 
 
-rule concat_Q:
+### Concat q ###
+
+rule concat_Q_rep:
   input:
-      expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
+      expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nc}/{env}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, correction = CORRECTION)
   output:
     qx="plots/A/q_{rep}.txt"
   shell:
     """
-    Rscript code/plot/concat_q.R {input} {output}
+    Rscript code/plot/concat_q_rep.R {input} {output}
+    """
+
+rule concat_Q_all:
+  input:
+      expand("plots/A/q_{rep}.txt", rep = REP)
+  output:
+    qx="plots/A/q.txt"
+  shell:
+    """
+    Rscript code/plot/concat_all.R {input} {output}
+    rm {input}
+    """
+
+### Concat error ###
+
+rule concat_error_rep:
+  input:
+      FGr = expand("output/Calculate_FGr/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/errorFGr-{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP),
+      PCA = expand("output/Calculate_FGr/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/errorPCA-{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
+  output:
+    qx="plots/A/error_{rep}.txt"
+  shell:
+    """
+    Rscript code/plot/concat_error_rep.R {input.FGr} {input.PCA} {output}
+    """
+
+rule concat_error_all:
+  input:
+      expand("plots/A/error_{rep}.txt", rep = REP)
+  output:
+    qx="plots/A/error.txt"
+  shell:
+    """
+    Rscript code/plot/concat_all.R {input} {output}
+    rm {input}
     """
