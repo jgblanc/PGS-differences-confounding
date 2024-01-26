@@ -12,12 +12,8 @@ library(tidyverse)
 ```
 
 ```{r}
-df <- fread("../plots/A/q_A1.txt")
-for (i in 2:50) {
-  
-  tmp <- fread(paste0("../plots/A/q_A", i, ".txt"))
-  df <- rbind(df, tmp)
-}
+df <- fread("../plots/A/q.txt")
+df <- df [,3:ncol(df)]
 ```
 
 ```{r}
@@ -30,4 +26,16 @@ dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 
 dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point() + facet_wrap(~L)
 
 ```
+
+
+```{r}
+dfE <- fread("../plots/A/error.txt")
+dfE <- dfE[,3:ncol(dfE)]
+
+dfSumE <- dfE %>% group_by(config, gwas_size, test_size, L, type) %>% summarize(count = n())
+```
+
+
+
+
 

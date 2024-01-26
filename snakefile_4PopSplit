@@ -69,8 +69,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/A/error.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION),
-        expand("plots/A/q.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/A/error_{rep}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -103,7 +102,7 @@ rule simulate_genotypes_4popsplit:
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 100
+        -nsnp 1000
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos-{wildcards.chr}_*
         """
 
@@ -585,7 +584,7 @@ rule concat_error_rep:
       FGr = expand("output/Calculate_FGr/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/errorFGr-{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP),
       PCA = expand("output/Calculate_FGr/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/errorPCA-{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP)
   output:
-    qx="plots/A/error_{rep}.txt"
+    "plots/A/error_{rep}.txt"
   shell:
     """
     Rscript code/plot/concat_error_rep.R {input.FGr} {input.PCA} {output}
@@ -595,7 +594,7 @@ rule concat_error_all:
   input:
       expand("plots/A/error_{rep}.txt", rep = REP)
   output:
-    qx="plots/A/error.txt"
+    "plots/A/error.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
