@@ -32,7 +32,7 @@ for (i in 2:(nfile-1)) {
 
   tmp <- fread(args[i])
   name <- colnames(tmp)
-  tmp_name <- strsplit(args[1], "/")[[1]]
+  tmp_name <- strsplit(args[i], "/")[[1]]
   tmp$rep <- tmp_name[4]
   tmp$config <- tmp_name[5]
   tmp$gwas_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
