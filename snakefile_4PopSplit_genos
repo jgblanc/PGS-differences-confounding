@@ -21,7 +21,7 @@ NUM_RESAMPLE = 1000
 REP = []
 for i in range(51,101):
   REP.append("A"+str(i))
-CHR = []
+CHR = ["5"]
 for i in range(1,501):
   CHR.append(str(i))
 NSNP = ["L-300" , "L-1000", "L-10000"]
@@ -80,10 +80,10 @@ rule simulate_genotypes_4popsplit:
     output:
         "output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.vcf",
 	"output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.pop"
-#    threads: 1
-#    resources:
-#        mem_mb=50000,
-#	time="02:00:00"
+    threads: 1
+    resources:
+        mem_mb=50000,
+	time="02:00:00"
     shell:
         """
         python3 -u code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
@@ -102,7 +102,7 @@ rule simulate_genotypes_4popsplit:
         -s2 2200 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 100
+        -nsnp 1000
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos-{wildcards.chr}_*
         """
 

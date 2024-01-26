@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=main
-#SBATCH --output=logs/main.out
-#SBATCH --error=logs/main.err
+#SBATCH --job-name=genos
+#SBATCH --output=logs/genos.out
+#SBATCH --error=logs/genos.err
 #SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -19,8 +19,8 @@ module load samtools
 echo "SLURM_JOBID="$SLURM_JOBID
 cat snakefile_4PopSplit
 snakemake -s snakefile_4PopSplit --unlock
-#snakemake -np -s snakefile_4PopSplit 
-snakemake --profile cluster-setup/ -s snakefile_4PopSplit  --rerun-incomplete
+#snakemake -np -s snakefile_4PopSplit_genos 
+snakemake --profile cluster-setup/ -s snakefile_4PopSplit_genos  --rerun-incomplete
 #snakemake -j1 --rerun-incomplete -s snakefile_main 
 
 #snakemake --cores all --rerun-incomplete -s snakefile_UKBB    
