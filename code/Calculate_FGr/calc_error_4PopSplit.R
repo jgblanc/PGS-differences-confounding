@@ -44,7 +44,14 @@ find_angle <- function(x,y){
 theta <- find_angle(vec, idvec)
 
 # Find error
-error <- theta / pi
+if (theta < (pi/2)) {
+  error <- theta / (pi/2)
+} else {
+  theta <- pi - theta
+  error <- theta / (pi/2)
+}
+
+
 
 # Save output
 out <- as.data.frame(error)

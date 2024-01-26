@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(data.table)
 library(tidyverse)
+library(latex2exp)
 ```
 
 ```{r}
@@ -19,12 +20,21 @@ df <- df [,3:ncol(df)]
 ```{r}
 
 dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()) )
+```
 
 
-dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = fp_strat, color = type)) + geom_point() + facet_wrap(~L) + geom_errorbar(aes(ymin = lowerci_fp, ymax = upperci_fp))
+```{r}
+pl <- dfPlot %>% filter(config =="C1", gwas_size == 1000) %>% ggplot(aes(x = env, y = fp_strat, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + geom_errorbar(aes(ymin = lowerci_fp, ymax = upperci_fp), width = 0.005) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + ylim(-0.1,1) + labs(colour="Covariate")+ geom_hline(yintercept = 0.05, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("False Postive Rate") + ggtitle("Test Panel Size")
+pl
 
-dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point() + facet_wrap(~L)
+#ggsave("~/Desktop/fp.png", pl)
+```
 
+```{r}
+pl <- dfPlot %>% filter(config =="C1", gwas_size == 10000, env != 0.1) %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias q") + ggtitle("Test Panel Size")
+pl
+
+ggsave("~/Desktop/bias.png", pl)
 ```
 
 
@@ -32,7 +42,9 @@ dfPlot %>% filter(config =="C1", gwas_size == 10000, test_size == 10000, env != 
 dfE <- fread("../plots/A/error.txt")
 dfE <- dfE[,3:ncol(dfE)]
 
-dfSumE <- dfE %>% group_by(config, gwas_size, test_size, L, type) %>% summarize(count = n())
+dfSumE <- dfE %>% group_by(config, gwas_size, test_size, L, type) %>% summarize(count = n(), avg_error = mean(error))
+
+dfSumE %>% filter(config =="C1", gwas_size == 10000) %>% ggplot(aes(x = L, y = avg_error, color = type)) + geom_point(size = 2) + facet_wrap(~test_size)
 ```
 
 
