@@ -40,16 +40,24 @@ find_angle <- function(x,y){
   return(as.numeric(theta))
 }
 
+# Find (1 - b2)
+find_b2 <- function(x,y){
+  b2 = 1-(dot.prod / (norm.x * norm.y))^2
+  return(as.numeric(b2))
+}
+
+
+
 # Find angle
-theta <- find_angle(vec, idvec)
+theta <- find_b2(vec, idvec)
 
 # Find error
-if (theta < (pi/2)) {
-  error <- theta / (pi/2)
-} else {
-  theta <- pi - theta
-  error <- theta / (pi/2)
-}
+#if (theta < (pi/2)) {
+#  error <- theta / (pi/2)
+#} else {
+#  theta <- pi - theta
+#  error <- theta / (pi/2)
+#}
 
 
 
