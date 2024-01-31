@@ -19,10 +19,8 @@ NUM_RESAMPLE = 1000
 
 # Big
 REP = []
-for i in range(1,50):
+for i in range(1,101):
   REP.append("A"+str(i))
-REP.remove("A5")
-print(REP)
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -71,7 +69,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/A/error.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/A/q.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
 
 
 ##########################
