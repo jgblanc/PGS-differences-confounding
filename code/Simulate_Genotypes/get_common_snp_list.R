@@ -24,9 +24,9 @@ print(paste0("The GWAS SNP number is ", nrow(g)))
 
 
 # Merge to include only variants passing frequency filter in both panels
-#dat <- inner_join(t,g, by=c("#CHROM","ID"))
+dat <- inner_join(t,g, by=c("#CHROM","ID"))
 
 # Randomly sample only nSNP number of SNPs
-#dat <- dat %>% sample_n(nSNP)
+dat <- dat %>% sample_n(nSNP)
 
-#write.table(dat$ID, outfile, quote = F, col.names = F, row.names = F)
+write.table(dat$ID, outfile, quote = F, col.names = F, row.names = F)
