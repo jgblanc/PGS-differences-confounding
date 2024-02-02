@@ -92,10 +92,11 @@ compute_b <- function(path_to_genos, path_to_testvec, outpath) {
 #####################
 
 # Gather parameters
-gwasID <- fread(gwasIDs_file)
+gwasID <- fread(gwasIDs_file)[, 1:2]
 m <- nrow(gwasID)
 testID <- fread(testIDs_file)
 n <- nrow(testID)
+
 
 # Compute b
 b = compute_b(path_to_genos = plink_prefix, path_to_testvec = tvec_file, outpath = out_prefix)
