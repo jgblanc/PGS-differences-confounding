@@ -1,8 +1,8 @@
 ## Snakefile to run 4 Pop Simulations
 
-CONFIG=["C1", "C2"]
-GWAS_SIZE=["gp-1000", "gp-10000"]
-TEST_SIZE=["tp-100", "tp-1000", "tp-10000"]
+CONFIG=["C1"]
+GWAS_SIZE=["gp-10000"]
+TEST_SIZE=["tp-10000"]
 PC=["1"]
 CORRECTION = PC + ["FGr", "NoCorrection", "ID"]
 NUM_RESAMPLE = 1000
@@ -25,7 +25,7 @@ CHR = []
 for i in range(1,501):
   CHR.append(str(i))
 NSNP = ["L-1000", "L-10000"]
-ENV = ["env_0.0", "env_0.1"]
+ENV = ["env_0.0", "env_0.1", "env_0.5", "env_1.0"]
 NUM_CAUSAL = ["c-300"]
 
 
@@ -69,7 +69,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/B/error.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/B/q_extend.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, pc=PC, correction = CORRECTION),
 
 
 ##########################
@@ -80,10 +80,10 @@ rule simulate_genotypes_4popsplit:
     output:
         "output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.vcf",
 	"output/Simulate_Genotypes/4PopSplit/{rep}/genos-{chr}.pop"
-#    threads: 1
-#    resources:
-#        mem_mb=50000,
-#	time="02:00:00"
+    threads: 1
+    resources:
+        mem_mb=50000,
+	time="02:00:00"
     shell:
         """
         python3 -u code/Simulate_Genotypes/generate_genotypes_4PopSplit.py \
@@ -570,7 +570,7 @@ rule concat_Q_all:
   input:
       expand("plots/4PopSplit/B/q_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/B/q.txt"
+    qx="plots/4PopSplit/B/q_extend.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}

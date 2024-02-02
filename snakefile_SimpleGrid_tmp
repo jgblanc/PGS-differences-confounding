@@ -1,6 +1,5 @@
 ## Snakefile to run 4 Pop Simulations
 
-CONFIG=["C1"]
 GWAS_SIZE=["gp-2160"]
 TEST_SIZE=["tp-720"]
 PC=["1", "10"]
@@ -71,7 +70,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/PRS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.c.beta", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, pheno=PHENO, env = ENV, test=TEST, pc=PC, correction=CORRECTION)
+        expand("output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/q-{correction}_{nsnp}.txt", rep = REP, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, pheno=PHENO, env = ENV, test=TEST, pc=PC, correction=CORRECTION)
 
 
 ##########################
@@ -162,8 +161,8 @@ rule create_panels_SimpleGrid:
     input:
         "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.pop"
     output:
-        gwas="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-	      test="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.test"
+        gwas="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+	      test="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test"
     params:
         ss_test = lambda wildcards: get_params(wildcards.test_size),
         ss_gwas = lambda wildcards: get_params(wildcards.gwas_size)
@@ -175,15 +174,15 @@ rule create_panels_SimpleGrid:
 rule get_variant_freq:
     input:
         genos="output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-        gwasIDs="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-        testIDs="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.test"
+        gwasIDs="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+        testIDs="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test"
     output:
-        "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-test.afreq",
-        "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas.afreq"
+        "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-test.afreq",
+        "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas.afreq"
     params:
         plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-        out_gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas",
-        out_test = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-test"
+        out_gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas",
+        out_test = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-test"
     shell:
         """
         plink2 \
@@ -201,10 +200,10 @@ rule get_variant_freq:
 
 rule get_common_snp_list:
     input:
-        test="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-test.afreq",
-        gwas="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas.afreq"
+        test="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-test.afreq",
+        gwas="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas.afreq"
     output:
-        "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+        "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
     params:
         num_snp = lambda wildcards: get_params(wildcards.nsnp)
     shell:
@@ -215,16 +214,16 @@ rule get_common_snp_list:
 rule calculate_fst:
     input:
         genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-        gwas_ids="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-        test_ids="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.test",
-        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+        gwas_ids="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+        test_ids="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test",
+        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
     output:
-        "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary",
-        "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/test_{nsnp}.fst.summary"
+        "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary",
+        "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/test_{nsnp}.fst.summary"
     params:
         plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-        out_gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}",
-        out_test ="output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/test_{nsnp}"
+        out_gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/gwas_{nsnp}",
+        out_test ="output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/test_{nsnp}"
     shell:
         """
 	      ~/Desktop/plink2 \
@@ -250,12 +249,12 @@ rule calculate_fst:
 
 rule draw_effect_sizes:
     input:
-        freq = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas.afreq",
+        freq = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas.afreq",
         pops = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.pop",
-        test = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.test",
-        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+        test = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test",
+        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
     output:
-        "output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt"
+        "output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt"
     params:
         her = lambda wildcards: get_params(wildcards.h2),
         nc = lambda wildcards: get_params(wildcards.nc)
@@ -267,14 +266,14 @@ rule draw_effect_sizes:
 rule generate_genetic_values:
     input:
         psam = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-        effects = "output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt",
-        IDs = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+        effects = "output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt",
+        IDs = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
     output:
-        "output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.gvalue.sscore"
+        "output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.gvalue.sscore"
     params:
         plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-        out_prefix = "output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.gvalue"
+        out_prefix = "output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.gvalue"
     shell:
         """
         plink2 \
@@ -287,10 +286,10 @@ rule generate_genetic_values:
 
 rule simulate_phenotype_SimpleGrid:
     input:
-        gvalues="output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.gvalue.sscore",
+        gvalues="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.gvalue.sscore",
         pops="output/Simulate_Genotypes/SimpleGrid/{rep}/genos.pop"
     output:
-        "output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt"
+        "output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt"
     params:
         her = lambda wildcards: get_params(wildcards.h2),
         en = lambda wildcards: get_env(wildcards.env)
@@ -305,9 +304,9 @@ rule simulate_phenotype_SimpleGrid:
 
 rule make_test_vector:
     input:
-        "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.test"
+        "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test"
     output:
-        "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/Tvec.txt"
+        "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/Tvec.txt"
     shell:
         """
         Rscript code/Calculate_FGr/make_tvec_SimpleGrid.R  {input} {wildcards.test} {output}
@@ -316,15 +315,15 @@ rule make_test_vector:
 rule compute_FGr:
     input:
         genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-        test = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.test",
-        gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-        tvec = "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/Tvec.txt",
-        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+        test = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test",
+        gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+        tvec = "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/Tvec.txt",
+        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
     output:
-        "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/FGr-{nsnp}.txt"
+        "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/FGr-{nsnp}.txt"
     params:
         plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-        out_prefix = "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/{nsnp}"
+        out_prefix = "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/{nsnp}"
     shell:
         """
         Rscript code/Calculate_FGr/calc_FGr.R {params.plink_prefix} {input.tvec} {input.test} {input.gwas} {input.snps} {params.out_prefix} {output}
@@ -337,14 +336,14 @@ rule compute_FGr:
 rule GWAS_PCA:
     input:
         genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-        gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+        gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+        snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
     output:
-        "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec",
-        "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenval"
+        "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec",
+        "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenval"
     params:
         plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-        out_prefix = "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}"
+        out_prefix = "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas-{nsnp}"
     shell:
         """
         plink2 \
@@ -362,10 +361,10 @@ rule GWAS_PCA:
 rule format_covars:
     input:
       pops = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.pop",
-      FGr = "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/FGr-{nsnp}.txt",
-      PC = "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec"
+      FGr = "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/FGr-{nsnp}.txt",
+      PC = "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec"
     output:
-      "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt",
+      "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt",
     shell:
       """
       Rscript code/Run_GWAS/format_covars_SimpleGrid.R {input.pops} {input.FGr} {input.PC} {output} {wildcards.test}
@@ -374,14 +373,14 @@ rule format_covars:
 rule gwas_no_correction:
   input:
       genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt"
+      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt"
   output:
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_NoCorrection.pheno_strat.glm.linear"
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_NoCorrection.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_NoCorrection"
+      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_NoCorrection"
   shell:
       """
       plink2 \
@@ -397,15 +396,15 @@ rule gwas_no_correction:
 rule gwas_FGr:
   input:
       genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno = "output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt",
-      covar = "output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt"
+      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno = "output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt",
+      covar = "output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_FGr.pheno_strat.glm.linear"
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_FGr.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_FGr"
+      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_FGr"
   shell:
       """
       plink2 \
@@ -423,15 +422,15 @@ rule gwas_FGr:
 rule gwas_ID:
   input:
       genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt",
-      covar="output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt"
+      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt",
+      covar="output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_ID.pheno_strat.glm.linear"
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_ID.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_ID"
+      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_ID"
   shell:
       """
       plink2 \
@@ -449,15 +448,15 @@ rule gwas_ID:
 rule gwas_PCs:
   input:
       genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt",
-      covar="output/Calculate_FGr/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt"
+      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt",
+      covar="output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/covars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_{pc}.pheno_strat.glm.linear"
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_{pc}.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_{pc}",
+      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_{pc}",
       pcs = lambda wildcards: get_pc_num(wildcards.pc)
   shell:
       """
@@ -479,11 +478,11 @@ rule gwas_PCs:
 
 rule pick_SNPS:
     input:
-      causal_effect="output/Simulate_Phenotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt",
-      gwas="output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{correction}.pheno_strat.glm.linear"
+      causal_effect="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt",
+      gwas="output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_{correction}.pheno_strat.glm.linear"
     output:
-      c="output/PRS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.c.betas",
-      nc="output/PRS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.nc.betas"
+      c="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.c.betas",
+      nc="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.nc.betas"
     params:
       num_snps = lambda wildcards: get_params(wildcards.nc)
     shell:
@@ -491,3 +490,26 @@ rule pick_SNPS:
       Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
       rm {input.gwas}
       """
+
+########################
+### Association Test ###
+########################
+
+rule Calc_Qx:
+  input:
+    c="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.c.betas",
+    nc="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.nc.betas",
+    genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
+    Tvec="output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/Tvec.txt",
+    es="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt"
+  output:
+    qx="output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/q-{correction}_{nsnp}.txt"
+  params:
+    num=NUM_RESAMPLE,
+    plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos"
+  shell:
+    """
+    Rscript code/PGA_test/calc_Q.R {params.plink_prefix} {input.c} {input.nc} {input.Tvec} {input.es} {params.num} {output}
+    rm {input.c}
+    rm {input.nc}
+    """
