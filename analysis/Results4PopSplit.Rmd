@@ -13,7 +13,7 @@ library(latex2exp)
 ```
 
 ```{r}
-df <- fread("../plots/4PopSplit/B/q.txt")
+df <- fread("../plots/4PopSplit/B/q_extend.txt")
 df <- df [,3:ncol(df)]
 ```
 
@@ -27,11 +27,11 @@ dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env,
 pl <- dfPlot %>% filter(config =="C1", gwas_size == 10000) %>% ggplot(aes(x = env, y = fp_strat, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + geom_errorbar(aes(ymin = lowerci_fp, ymax = upperci_fp), width = 0.005) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + ylim(-0.1,1) + labs(colour="Covariate")+ geom_hline(yintercept = 0.05, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("False Postive Rate") + ggtitle("Test Panel Size")
 pl
 
-ggsave("~/Desktop/fp.png", pl)
+#ggsave("~/Desktop/fp.png", pl)
 ```
 
 ```{r}
-pl <- dfPlot %>% filter(config =="C1", gwas_size == 10000) %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias q") + ggtitle("Test Panel Size")
+pl <- dfPlot %>% filter(config =="C1", gwas_size == 10000) %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.1) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias q") + ggtitle("Test Panel Size")
 pl
 
 #ggsave("~/Desktop/bias.png", pl)
@@ -47,10 +47,19 @@ dfSumE <- dfE %>% group_by(config, gwas_size, test_size, L, type) %>% summarize(
 pl <- dfSumE %>% filter(config =="C1") %>% ggplot(aes(x = L, y = avg_error, color = type)) + geom_point(size = 2) + facet_grid(vars(gwas_size), vars(test_size)) + scale_x_log10() + geom_errorbar(aes(ymin = lowerci, ymax = upperci), width = 0.25) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5), plot.tag.position = c(1.03, .55),plot.tag = element_text(angle = -90) ,legend.position = "bottom", plot.margin = margin(0,1.5,0,0, "cm")) + ylab("Avg. Error") + ggtitle("Test Panel Size") + labs(tag = "GWAS Panel size", colour="Covariate") + geom_hline(yintercept = 0, color = "red") + ylim(c(0,1))
 
 pl
-ggsave("~/Desktop/error.png", pl, height = 7, width = 10)
+#ggsave("~/Desktop/error.png", pl, height = 7, width = 10)
 ```
 
 
+```{r}
+tmp <- fread("~/Downloads/covars-L-10000.txt")
+
+plot(tmp$PopID, tmp$PC1)
+plot(tmp$PopID, tmp$FGr)
+
+var(tmp$PC1)
+var(tmp$FGr)
+```
 
 
 
