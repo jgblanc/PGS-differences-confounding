@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(data.table)
 library(tidyverse)
 library(latex2exp)
+library(ggpubr)
 ```
 
 ```{r}
@@ -19,7 +20,7 @@ df <- df [,3:ncol(df)]
 
 ```{r}
 
-dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()) )
+dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
 ```
 
 
@@ -36,6 +37,12 @@ pl
 
 #ggsave("~/Desktop/bias.png", pl)
 ```
+
+```{r}
+dfPlot %>% filter(config =="C1", gwas_size == 10000) %>% ggplot(aes(x = env, y = q_std, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias q") + ggtitle("Test Panel Size")
+
+```
+
 
 
 ```{r}
@@ -59,6 +66,38 @@ plot(tmp$PopID, tmp$FGr)
 
 var(tmp$PC1)
 var(tmp$FGr)
+```
+
+
+
+
+
+
+
+
+
+```{r}
+df <- fread("../plots/4PopSplit/B/error_B3.txt")
+df$gamma <- df$L / 1000
+p1 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
+
+df <- fread("../plots/4PopSplit/B/error_B4.txt")
+df$gamma <- df$L / 1000
+p2 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
+
+df <- fread("../plots/4PopSplit/B/error_B5.txt")
+df$gamma <- df$L / 1000
+p3 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
+p3
+#ggsave("~/Desktop/gamma.png", pl)
+```
+
+```{r}
+df <- fread("../plots/4PopSplit/B/q_B5.txt")
+df$gamma <- df$L / 1000
+df <- df %>% filter(env == 5)
+
+ggplot(data = df, aes(x = gamma, y = `nc-q`, color = type)) + geom_point()
 ```
 
 
