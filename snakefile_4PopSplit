@@ -24,7 +24,7 @@ REP = ["C1"]
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-500","L-1000", "L-2000", "L-3000", "L-4000", "L-5000", "L-10000","L-20000" ]
+NSNP = ["L-500","L-1000", "L-2000", "L-3000", "L-4000", "L-5000", "L-10000","L-20000", "L-40000", "L-60000" ]
 ENV = ["env_0.0", "env_0.5","env_1.0", "env_5.0"]
 NUM_CAUSAL = ["c-300"]
 
@@ -98,10 +98,10 @@ rule simulate_genotypes_4popsplit:
 	      -c 1000 \
 	      -d 1000 \
         -s1 300 \
-        -s2 280 \
+        -s2 250 \
         -L 1 \
         -u 1e-5  \
-        -nsnp 100
+        -nsnp 500
 	rm -f output/Simulate_Genotypes/4PopSplit/{wildcards.rep}/genos-{wildcards.chr}_*
         """
 

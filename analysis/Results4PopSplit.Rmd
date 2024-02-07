@@ -88,9 +88,23 @@ p2 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
 df <- fread("../plots/4PopSplit/B/error_B5.txt")
 df$gamma <- df$L / 1000
 p3 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
+
+
+p1
+p2
 p3
 #ggsave("~/Desktop/gamma.png", pl)
 ```
+
+
+```{r}
+df <- fread("../plots/4PopSplit/C/error_C1.txt")
+df$gamma <- df$L / 1000
+ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
+```
+
+
+
 
 ```{r}
 df <- fread("../plots/4PopSplit/B/q_B5.txt")
