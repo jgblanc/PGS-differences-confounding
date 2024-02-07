@@ -98,7 +98,7 @@ p3
 
 
 ```{r}
-df <- fread("../plots/4PopSplit/C/error_C1.txt")
+df <- fread("../plots/4PopSplit/C/error_C2.txt")
 df$gamma <- df$L / 1000
 ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point() + scale_x_log10()
 ```
