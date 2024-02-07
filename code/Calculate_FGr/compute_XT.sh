@@ -8,7 +8,7 @@ ids=$5
 plink2 \
   --pfile $pfile_path \
   --extract $overlap_snps \
-  --glm omit-ref \
+  --glm omit-ref allow-no-covars \
   --pheno  $pheno_path \
   --pheno-name Tvec \
   --geno-counts \
