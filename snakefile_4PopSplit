@@ -18,9 +18,9 @@ NUM_RESAMPLE = 1000
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = ["C3"]
-#for i in range(1,51):
-#  REP.append("B"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -98,7 +98,7 @@ rule simulate_genotypes_4popsplit:
 	      -c 1000 \
 	      -d 1000 \
         -s1 300 \
-        -s2 100 \
+        -s2 250 \
         -L 1 \
         -u 1e-5  \
         -nsnp 600
