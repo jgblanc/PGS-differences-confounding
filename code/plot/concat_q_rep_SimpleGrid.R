@@ -29,14 +29,14 @@ for (i in 2:(nfile-1)) {
 
   tmp <- fread(args[i])[, 2:10]
   tmp_name <- strsplit(args[i], "/")[[1]]
-  rep$rep <- tmp_name[4]
-  rep$gwas_size <- as.numeric(strsplit(tmp_name[5], "-")[[1]][2])
-  rep$test_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
-  rep$h2 <- as.numeric(strsplit(tmp_name[7], "-")[[1]][2])
-  rep$num_causal <- as.numeric(strsplit(tmp_name[8], "-")[[1]][2])
-  rep$env <- as.numeric(strsplit(tmp_name[9], "_")[[1]][2])
-  rep$pheno <- tmp_name[10]
-  rep$test <- tmp_name[11]
+  tmp$rep <- tmp_name[4]
+  tmp$gwas_size <- as.numeric(strsplit(tmp_name[5], "-")[[1]][2])
+  tmp$test_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
+  tmp$h2 <- as.numeric(strsplit(tmp_name[7], "-")[[1]][2])
+  tmp$num_causal <- as.numeric(strsplit(tmp_name[8], "-")[[1]][2])
+  tmp$env <- as.numeric(strsplit(tmp_name[9], "_")[[1]][2])
+  tmp$pheno <- tmp_name[10]
+  tmp$test <- tmp_name[11]
   out <- rbind(out, tmp)
 
 }
