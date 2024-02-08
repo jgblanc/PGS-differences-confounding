@@ -70,7 +70,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/q-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("plots/SimpleGrid/A/q.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
@@ -512,5 +512,33 @@ rule Calc_Qx:
     Rscript code/PGA_test/calc_Q.R {params.plink_prefix} {input.c} {input.nc} {input.Tvec} {input.es} {params.num} {output}
     rm {input.c}
     rm {input.nc}
+    """
+
+###########################
+### Concatenate Results ###
+###########################
+
+
+### Concat q ###
+
+rule concat_Q_rep:
+  input:
+      expand("output/PGA_test/SimpleGrid/{{rep}}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, env=ENV, pheno=PHENO, test=TEST, correction = CORRECTION)
+  output:
+    qx="plots/SimpleGrid/A/q_{rep}.txt"
+  shell:
+    """
+    Rscript code/plot/concat_q_rep_SimpleGrid.R {input} {output}
+    """
+
+rule concat_Q_all:
+  input:
+      expand("plots/SimpleGrid/A/q_{rep}.txt", rep = REP)
+  output:
+    qx="plots/SimpleGrid/A/q.txt"
+  shell:
+    """
+    Rscript code/plot/concat_all.R {input} {output}
+    rm {input}
     """
 
