@@ -121,6 +121,7 @@ for (i in 1:num_resample){
 }
 all_strat <- redraws[,1]
 cP <- length(all_strat[abs(all_strat) > abs(cQ[1,1])]) /length(all_strat)
+cStan <- cQ / sd(all_strat)
 
 # noncausal
 redraws <- matrix(0, ncol = 1, nrow = num_resample)
@@ -129,6 +130,7 @@ for (i in 1:num_resample){
 }
 all_strat <- redraws[,1]
 ncP <- length(all_strat[abs(all_strat) > abs(ncQ[1,1])]) /length(all_strat)
+ncStan <- ncQ / sd(all_strat)
 
 # Get names
 tmp <- strsplit(outfile, "/")[[1]][12]
@@ -139,9 +141,9 @@ snps <- as.numeric(strsplit(tmp3, "-")[[1]][2])
 
 
 # Assemble output
-out <- as.data.frame(matrix(NA, nrow= 1, ncol = 9))
-colnames(out) <- c("c-q", "nc-q", "true-q", "c-p", "nc-p", "c-bias", "nc-bias", "type","L")
-out[1,] <- c(cQ, ncQ, trueQ, cP, ncP, (cQ - trueQ), (ncQ - trueQ), type, snps)
+out <- as.data.frame(matrix(NA, nrow= 1, ncol = 11))
+colnames(out) <- c("c-q", "nc-q", "true-q", "c-p", "nc-p", "c-bias", "nc-bias", "type","L", "stan-c", "stan-nc")
+out[1,] <- c(cQ, ncQ, trueQ, cP, ncP, (cQ - trueQ), (ncQ - trueQ), type, snps, cStan, ncStan)
 
 # Save output
 print(out)

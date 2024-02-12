@@ -98,20 +98,20 @@ p3
 
 
 ```{r}
-df <- fread("../plots/4PopSplit/C/error_C2.txt")
+df <- fread("../plots/4PopSplit/C/error.txt")
 df$gamma <- df$L / 1000
-ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point() + scale_x_log10()
+ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point() + scale_x_log10() 
 ```
 
 
 
 
 ```{r}
-df <- fread("../plots/4PopSplit/B/q_B5.txt")
+df <- fread("../plots/4PopSplit/C/error.txt")[,3:9]
 df$gamma <- df$L / 1000
-df <- df %>% filter(env == 5)
+dfPlot <- df %>% group_by(config, test_size, gwas_size, L, type, gamma) %>% summarise(num = n(), avg_error = mean(error))
 
-ggplot(data = df, aes(x = gamma, y = `nc-q`, color = type)) + geom_point()
+ggplot(data = dfPlot, aes(x = gamma, y = avg_error, color = type)) + geom_point() + scale_x_log10()
 ```
 
 

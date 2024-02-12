@@ -1,0 +1,30 @@
+---
+title: "Results_SimpleGrid"
+author: "Jennifer Blanc"
+date: "2024-02-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyverse)
+library(latex2exp)
+library(ggpubr)
+```
+
+```{r}
+df <- fread("../plots/SimpleGrid/A/q.txt")
+df <- df [,3:ncol(df)]
+```
+
+```{r}
+dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
+```
+
+```{r}
+pl <- dfPlot  %>% ggplot(aes(x = env, y = fp_strat, color = type)) + geom_point(size = 2) + facet_grid(vars(pheno), vars(test)) + geom_errorbar(aes(ymin = lowerci_fp, ymax = upperci_fp), width = 0.05) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + ylim(-0.1,1) + labs(colour="Covariate")+ geom_hline(yintercept = 0.05, color = "red") + xlab("Confounder") + ylab("False Postive Rate") + ggtitle("Test")
+
+ggsave("~/Desktop/grids.png", pl)
+```
+
