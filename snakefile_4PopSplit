@@ -19,9 +19,9 @@ NUM_RESAMPLE = 1000
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = ["C1"]
-#for i in range(1,101):
-#  REP.append("C"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -70,12 +70,12 @@ def get_pc_num(x):
 
 def get_nc(x):
   tmp = x.split("-")[1]
-  out = float(tmp) * 0.05
+  out = int(float(tmp) * 0.05)
   return out
 
 rule all:
     input:
-        expand("output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/q-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/C/q.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
 
 ##########################
 ### Simluate Genotypes ###
@@ -271,7 +271,7 @@ rule draw_effect_sizes:
     params:
         her = lambda wildcards: get_params(wildcards.h2),
         prob = lambda wildcards: get_params(wildcards.ts),
-        nc = lambda wildcards: get_nc(wildcards.L),
+        nc = lambda wildcards: get_nc(wildcards.nsnp),
         geno_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos"
     shell:
         """
@@ -402,7 +402,7 @@ rule gwas_no_correction:
       --pfile {params.plink_prefix} \
       --keep {input.gwas} \
       --extract {input.snps} \
-      --glm \
+      --glm allow-no-covars \
       --pheno {input.pheno} \
       --pheno-name pheno_strat \
       --out {params.out_prefix}
@@ -499,7 +499,7 @@ rule pick_SNPS:
       c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas_{nsnp}_{correction}.c.betas",
       nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas_{nsnp}_{correction}.nc.betas"
     params:
-      num_snps = lambda wildcards: get_params(wildcards.nc)
+      num_snps = lambda wildcards: get_nc(wildcards.nsnp)
     shell:
       """
       Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
@@ -564,9 +564,9 @@ rule compute_PCA_Error:
 
 rule concat_Q_rep:
   input:
-      expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, nc=NUM_CAUSAL, env=ENV, correction = CORRECTION)
+      expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, env=ENV, correction = CORRECTION)
   output:
-    qx="plots/4PopSplit/B/q_{rep}.txt"
+    qx="plots/4PopSplit/C/q_{rep}.txt"
   shell:
     """
     Rscript code/plot/concat_q_rep.R {input} {output}
@@ -576,7 +576,7 @@ rule concat_Q_all:
   input:
       expand("plots/4PopSplit/C/q_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/C/q_extend.txt"
+    qx="plots/4PopSplit/C/q.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
