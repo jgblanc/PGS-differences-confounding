@@ -58,15 +58,7 @@ pl
 ```
 
 
-```{r}
-tmp <- fread("~/Downloads/covars-L-10000.txt")
 
-plot(tmp$PopID, tmp$PC1)
-plot(tmp$PopID, tmp$FGr)
-
-var(tmp$PC1)
-var(tmp$FGr)
-```
 
 
 
@@ -114,5 +106,18 @@ dfPlot <- df %>% group_by(config, test_size, gwas_size, L, type, gamma) %>% summ
 ggplot(data = dfPlot, aes(x = gamma, y = avg_error, color = type)) + geom_point() + scale_x_log10()
 ```
 
+```{r}
+df <- fread("../plots/4PopSplit/C/q.txt")
+df <- df [,3:ncol(df)]
+
+dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
+dfPlot$gamma <- dfPlot$L / 1000
+```
+
+```{r}
+tmp <- dfPlot %>% filter(env == 1)
+
+ggplot(data = tmp, aes(x = gamma, y = fp_strat, color = type)) + geom_point() + scale_x_log10()
+```
 
 
