@@ -520,8 +520,7 @@ rule calc_Qx:
 rule calc_PRS:
   input:
     effects="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.nc.betas",
-    genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-    qx="output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/q-{correction}_{nsnp}.txt",
+    genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam"
     IDs = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.test",
     snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
   output:
@@ -537,6 +536,7 @@ rule calc_PRS:
 	  --keep {input.IDs} \
 	  --extract {input.snps} \
 		--score {input.effects} cols=dosagesum,scoresums
+		rm {input.effects}
     """
 
 rule format_PRS:
@@ -548,6 +548,7 @@ rule format_PRS:
   shell:
     """
     Rscript code/PRS/summarize_prs_SimpleGrid.R {output} {input.pop} {input.prs}
+    rm {input.prs}
     """
 
 ###########################
