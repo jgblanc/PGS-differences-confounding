@@ -19,9 +19,9 @@ NUM_RESAMPLE = 1000
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = []
-for i in range(1,101):
-  REP.append("C"+str(i))
+REP = ["C1"]
+#for i in range(1,101):
+#  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -57,7 +57,8 @@ def get_params(x):
   return out
 
 def get_env(x):
-  out = x.split("_")[1]
+  tmp = float(x.split("-")[1])
+  out = float(5000 / (tmp * 0.05))
   return out
 
 def get_pc_num(x):
@@ -75,7 +76,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/C/q.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
+        expand("output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
 
 ##########################
 ### Simluate Genotypes ###
@@ -304,10 +305,10 @@ rule simulate_phenotype_4PopSplit:
         gvalues="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/genos-gwas-{nsnp}.gvalue.sscore",
         pops="output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop"
     output:
-        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas-{nsnp}.phenos.txt"
+        "output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt"
     params:
         her = lambda wildcards: get_params(wildcards.h2),
-        en = lambda wildcards: get_env(wildcards.env)
+        en = lambda wildcards: get_env(wildcards.nsnp)
     shell:
         """
         Rscript code/Simulate_Phenotypes/simulate_phenotypes_4PopSplit.R {input.gvalues} {input.pops} {output} {params.her} {params.en}
@@ -390,12 +391,12 @@ rule gwas_no_correction:
       genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
       gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
       snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas-{nsnp}.phenos.txt"
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt"
   output:
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_NoCorrection.pheno_strat.glm.linear"
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_NoCorrection.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_NoCorrection"
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_NoCorrection"
   shell:
       """
       plink2 \
@@ -413,13 +414,13 @@ rule gwas_FGr:
       genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
       gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
       snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas-{nsnp}.phenos.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt",
       covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_FGr.pheno_strat.glm.linear"
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_FGr.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_FGr"
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_FGr"
   shell:
       """
       plink2 \
@@ -439,13 +440,13 @@ rule gwas_ID:
       genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
       gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
       snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas-{nsnp}.phenos.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt",
       covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_ID.pheno_strat.glm.linear"
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_ID.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_ID"
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_ID"
   shell:
       """
       plink2 \
@@ -465,13 +466,13 @@ rule gwas_PCs:
       genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
       gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
       snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas-{nsnp}.phenos.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt",
       covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_{pc}.pheno_strat.glm.linear"
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_{pc}.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_{pc}",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_{pc}",
       pcs = lambda wildcards: get_pc_num(wildcards.pc)
   shell:
       """
@@ -494,10 +495,10 @@ rule gwas_PCs:
 rule pick_SNPS:
     input:
       causal_effect="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/genos-gwas-{nsnp}.effects.txt",
-      gwas="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos_gwas_{nsnp}_{correction}.pheno_strat.glm.linear"
+      gwas="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_{correction}.pheno_strat.glm.linear"
     output:
-      c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas_{nsnp}_{correction}.c.betas",
-      nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas_{nsnp}_{correction}.nc.betas"
+      c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_{correction}.c.betas",
+      nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_{correction}.nc.betas"
     params:
       num_snps = lambda wildcards: get_nc(wildcards.nsnp)
     shell:
@@ -512,13 +513,13 @@ rule pick_SNPS:
 
 rule Calc_Qx:
   input:
-    c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas_{nsnp}_{correction}.c.betas",
-    nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/genos-gwas_{nsnp}_{correction}.nc.betas",
+    c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_{correction}.c.betas",
+    nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_{correction}.nc.betas",
     genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
     Tvec="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/Tvec.txt",
     es="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/genos-gwas-{nsnp}.effects.txt"
   output:
-    qx="output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/q-{correction}_{nsnp}.txt"
+    qx="output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt"
   params:
     num=NUM_RESAMPLE,
     plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos"
@@ -564,7 +565,7 @@ rule compute_PCA_Error:
 
 rule concat_Q_rep:
   input:
-      expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{env}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, env=ENV, correction = CORRECTION)
+      expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, env=ENV, correction = CORRECTION)
   output:
     qx="plots/4PopSplit/C/q_{rep}.txt"
   shell:
@@ -576,7 +577,7 @@ rule concat_Q_all:
   input:
       expand("plots/4PopSplit/C/q_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/C/q.txt"
+    qx="plots/4PopSplit/C/q_env.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}

@@ -13,7 +13,7 @@ nfile = length(args)
 print(nfile)
 
 # Read in first file and collect all parameters
-out <- fread(args[1])[,2:10]
+out <- fread(args[1])[,2:12]
 tmp_name <- strsplit(args[1], "/")[[1]]
 out$rep <- tmp_name[4]
 out$config <- tmp_name[5]
@@ -28,7 +28,7 @@ out$env <- as.numeric(strsplit(tmp_name[11], "_")[[1]][2])
 # Loops through all other files and add onto output
 for (i in 2:(nfile-1)) {
 
-  tmp <- fread(args[i])[, 2:10]
+  tmp <- fread(args[i])[, 2:12]
   tmp_name <- strsplit(args[i], "/")[[1]]
   tmp$rep <- tmp_name[4]
   tmp$config <- tmp_name[5]
