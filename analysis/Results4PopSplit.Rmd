@@ -58,66 +58,91 @@ pl
 ```
 
 
+## Figure 2
+
+**Deep Split**
+
+First Split: 300  
+Second Split: 250  
 
 
-
-
-
-
-
-
-
-
-```{r}
-df <- fread("../plots/4PopSplit/B/error_B3.txt")
-df$gamma <- df$L / 1000
-p1 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
-
-df <- fread("../plots/4PopSplit/B/error_B4.txt")
-df$gamma <- df$L / 1000
-p2 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
-
-df <- fread("../plots/4PopSplit/B/error_B5.txt")
-df$gamma <- df$L / 1000
-p3 <- ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point()
-
-
-p1
-p2
-p3
-#ggsave("~/Desktop/gamma.png", pl)
-```
-
-
-```{r}
-df <- fread("../plots/4PopSplit/C/error.txt")
-df$gamma <- df$L / 1000
-ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point() + scale_x_log10() 
-```
-
-
-
-
-```{r}
+Error vs SNP/Individual Ratio 
+```{r, warning=FALSE, message=FALSE}
+# Read in results
 df <- fread("../plots/4PopSplit/C/error.txt")[,3:9]
-df$gamma <- df$L / 1000
-dfPlot <- df %>% group_by(config, test_size, gwas_size, L, type, gamma) %>% summarise(num = n(), avg_error = mean(error))
 
-ggplot(data = dfPlot, aes(x = gamma, y = avg_error, color = type)) + geom_point() + scale_x_log10()
+# Compute SNP to individual ratio
+df$gamma <- df$L / 1000
+
+# Compute average accross replicates
+dfError <- df %>% group_by(config, test_size, gwas_size, L, type, gamma) %>% summarise(num = n(), avg_error = mean(error), lowerci_mean = avg_error - (1.96 * (sd(error)  /  sqrt(n()))), upperci_mean = avg_error + (1.96 * (sd(error)  /  sqrt(n()))))
+
+# Plot 
+ggplot(data = dfError, aes(x = gamma, y = avg_error, color = type)) + geom_point(size=2) +
+  geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.07) + scale_x_log10() +
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) + xlab(TeX("$\\frac{L}{M}$")) + ylab("Error") + ylim(0,1) + scale_color_manual(values = c("navy", "red4"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1"), name = "")
 ```
 
-```{r}
-df <- fread("../plots/4PopSplit/C/q.txt")
+Bias vs SNP/Individual Ratio 
+```{r, warning=FALSE, message=FALSE}
+# Read in results 
+df <- fread("../plots/4PopSplit/C/q_env.txt")
 df <- df [,3:ncol(df)]
 
-dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
+# Compute average bias across replicates 
+dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`), avg_q_stan = mean(`stan-nc`))
+
+# Compute SNP to individual ratio
 dfPlot$gamma <- dfPlot$L / 1000
 ```
 
 ```{r}
-tmp <- dfPlot %>% filter(env == 1)
+# Compute Expected bias based on error
+noCor <- dfPlot %>% filter(type == "NoCorrection") 
+noCor <- noCor[, c("avg_q", "gamma")]
 
-ggplot(data = tmp, aes(x = gamma, y = fp_strat, color = type)) + geom_point() + scale_x_log10()
+# Compute expected bias for FGr
+FGr <- dfError %>% filter(type == "FGr")
+FGr <- FGr[, c("avg_error", "gamma")]
+FGr$exp_bias <- FGr$avg_error * noCor$avg_q
+FGr$cor <- "FGr"
+
+# Compute expected bias for PC 1
+PC1 <- dfError %>% filter(type == "PC1")
+PC1 <- PC1[, c("avg_error", "gamma")]
+PC1$exp_bias <- PC1$avg_error * noCor$avg_q
+PC1$cor <- "PC1" 
+
+# Combine Results 
+dfExp <- rbind(FGr, PC1)
 ```
+
+```{r}
+# Plot 
+ggplot(data = dfPlot, aes(x = gamma, y = avg_q)) + geom_point(aes(color = type), size=2) + scale_x_log10() + 
+  geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + 
+  xlab(TeX("$\\frac{L}{M}$")) + ylab("Bias") + 
+  geom_point(data = dfExp, aes(x = gamma, y = exp_bias, shape = cor), color = "red", size = 2) +
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) +
+  scale_color_manual(values = c("red4", "navy", "darkgreen", "goldenrod2"), labels = c("PC 1", TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correction"), name = "Bias") + 
+  scale_shape_manual(values = c(8, 4), labels = c(TeX("$\\hat{F}_{Gr}$"), "PC 1"), name = "Expected Bias")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
