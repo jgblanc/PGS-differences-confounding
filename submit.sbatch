@@ -2,7 +2,7 @@
 #SBATCH --job-name=main
 #SBATCH --output=logs/main.out
 #SBATCH --error=logs/main.err
-#SBATCH --time=24:00:00
+#SBATCH --time=06:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=2000

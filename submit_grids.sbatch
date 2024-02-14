@@ -2,7 +2,7 @@
 #SBATCH --job-name=grids
 #SBATCH --output=logs/grids.out
 #SBATCH --error=logs/grids.err
-#SBATCH --time=24:00:00
+#SBATCH --time=04:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=2000
