@@ -105,7 +105,7 @@ rule simulate_genotypes_4popsplit:
 	      -c 1000 \
 	      -d 1000 \
         -s1 300 \
-        -s2 150 \
+        -s2 100 \
         -L 1 \
         -u 1e-5  \
         -nsnp 600

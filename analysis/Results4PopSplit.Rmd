@@ -129,6 +129,16 @@ ggplot(data = dfPlot, aes(x = gamma, y = avg_q)) + geom_point(aes(color = type),
 ```
 
 
+```{r}
+# Read in results
+df <- fread("../plots/4PopSplit/D/error_D1.txt")
+
+# Compute SNP to individual ratio
+df$gamma <- df$L / 1000
+
+ggplot(data = df, aes(x = gamma, y = error, color = type)) + geom_point() + scale_x_log10()
+
+```
 
 
 
