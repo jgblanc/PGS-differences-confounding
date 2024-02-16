@@ -15,7 +15,7 @@ library(ggpubr)
 
 ## Bias Plots
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # Read in results 
 df <- fread("../plots/SimpleGrid/A/q.txt")
 df <- df [,3:ncol(df)]
@@ -28,14 +28,61 @@ dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection", "FGr", "10" , "ID"
 ```
 
 ```{r}
-dfPlot %>% filter(pheno == "PS" & test == "PS" & env == 0.2 & type != "ID") %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
+# Function to make bar plots with bias 
+plot_bias <- function(pheno_type, test_type, env_type) {
+  
+  pl <- dfPlot %>% filter(pheno == pheno_type & test == test_type & env == env_type & type != "ID") %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
   theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), legend.position = "none", legend.text.align = 0) + 
-  scale_fill_manual(values = c("goldenrod2","navy", "red4")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "$\\hat{F}_{Gr}$", "10 PCs"))))
-#+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2)  
+  scale_fill_manual(values = c("goldenrod2","navy", "red4")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "$\\hat{F}_{Gr}$", "10 PCs")))) + xlab("") + ylab("Bias")
+  
+  return(pl)
+}
+
+# Plot bias 
+plLL <- plot_bias("LAT", "LAT", 0.2)
+plDL <- plot_bias("DIAG", "LAT", 0.2)
+plPS <- plot_bias("PS", "PS", 0.2)
 ```
+
+## PRS Plots
+
 
 
 ```{r}
-dfPlot  %>% ggplot(aes(x = env, y = avg_q, color = type)) + geom_point(size = 2) + facet_grid(vars(pheno), vars(test)) + geom_errorbar(aes(ymin = lowerci_fp, ymax = upperci_fp), width = 0.05) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + ylim(-0.1,1) + labs(colour="Covariate")+ geom_hline(yintercept = 0.05, color = "red") + xlab("Confounder") + ylab("False Postive Rate") + ggtitle("Test")
+
+plot_PRS <- function(dfNC, dfFGr, dfPCs, ll, up) {
+  
+  # No Correction
+  plNC <- ggplot(data =dfNC, aes(x = LONG, y = LAT, fill = avg_PRS)) + geom_tile() +  theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = "PGS", limits = c(ll, up)) + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
+  
+  # FGr included
+  plFGr <- ggplot(data =dfFGr, aes(x = LONG, y = LAT, fill = avg_PRS)) + geom_tile() +  theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = "PGS", limits = c(ll, up)) + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
+  
+  # 10 PCs included
+  plPCs <- ggplot(data =dfPCs, aes(x = LONG, y = LAT, fill = avg_PRS)) + geom_tile() +  theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = "PGS", limits = c(ll, up)) + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
+  
+  # Combine plots
+  pl <- ggpubr::ggarrange(plNC, plFGr, plPCs, common.legend = T, legend="right", nrow = 1)
+  
+}
+
+# Lat/Lat
+dfNC <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/LAT/LAT/prs-NoCorrection_L-20000.txt")
+dfFGr <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/LAT/LAT/prs-FGr_L-20000.txt")
+dfPCs <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/LAT/LAT/prs-10_L-20000.txt")
+prsLL <- plot_PRS(dfNC, dfFGr, dfPCs, -.6, .6)
+
+
+# Diag/Lat
+dfNC <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-NoCorrection_L-20000.txt")
+dfFGr <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-FGr_L-20000.txt")
+dfPCs <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-10_L-20000.txt")
+prsDL <- plot_PRS(dfNC, dfFGr, dfPCs, -.2, .4)
+
+# PS/PS
+dfNC <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/PS/prs-NoCorrection_L-20000.txt")
+dfFGr <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/PS/prs-FGr_L-20000.txt")
+dfPCs <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/PS/prs-10_L-20000.txt")
+prsPS <- plot_PRS(dfNC, dfFGr, dfPCs, -.2, .2)
 ```
 
