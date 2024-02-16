@@ -28,7 +28,7 @@ dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection", "FGr", "10" , "ID"
 ```
 
 ```{r}
-dfPlot %>% filter(pheno == "LAT" & test == "LAT" & env == 0 & type != "ID") %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
+dfPlot %>% filter(pheno == "PS" & test == "PS" & env == 0.2 & type != "ID") %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
   theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), legend.position = "none", legend.text.align = 0) + 
   scale_fill_manual(values = c("goldenrod2","navy", "red4")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "$\\hat{F}_{Gr}$", "10 PCs"))))
 #+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2)  
