@@ -306,7 +306,7 @@ rule concat_phenos:
     "plots/SimpleGrid/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/phenos_{nsnp}.txt"
   shell:
     """
-    Rscript code/PRS/summarize_phenos_SimpleGrid.R {output} {input.pops} {input.pheno}
+    Rscript code/Simulate_Phenotypes/summarize_phenos_SimpleGrid.R {output} {input.pops} {input.pheno}
     """
 
 ###################s

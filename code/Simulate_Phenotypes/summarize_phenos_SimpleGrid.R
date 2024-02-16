@@ -25,7 +25,6 @@ df <- inner_join(df, pops)
 for (i in 4:length(args)) {
 
   tmp <- fread(args[i])
-  colnames(tmp)[1] <- "IID"
   tmp <- inner_join(tmp, pops)
 
   df <- rbind(df, tmp)
