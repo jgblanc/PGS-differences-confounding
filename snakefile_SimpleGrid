@@ -589,7 +589,7 @@ rule format_PRS:
 
 rule concat_Q_rep:
   input:
-      expand("output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/long-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, env=ENV, pheno=PHENO, test=TEST, correction = CORRECTION)
+      expand("output/PGA_test/SimpleGrid/{{rep}}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/long-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, env=ENV, pheno=PHENO, test=TEST, correction = CORRECTION)
   output:
     qx="plots/SimpleGrid/A/q_{rep}.txt"
   shell:
