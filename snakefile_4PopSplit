@@ -76,7 +76,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/D/error_{rep}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/D/error.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
 
 ##########################
 ### Simluate Genotypes ###
@@ -599,9 +599,9 @@ rule concat_error_rep:
 
 rule concat_error_all:
   input:
-      expand("plots/4PopSplit/C/error_{rep}.txt", rep = REP)
+      expand("plots/4PopSplit/D/error_{rep}.txt", rep = REP)
   output:
-    "plots/4PopSplit/C/error.txt"
+    "plots/4PopSplit/D/error.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
