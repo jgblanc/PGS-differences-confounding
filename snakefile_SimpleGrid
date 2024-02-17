@@ -18,9 +18,9 @@ NUM_RESAMPLE = 1000
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = []
-for i in range(1,101):
-  REP.append("A"+str(i))
+REP = ["A1"]
+#for i in range(1,101):
+#  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -70,7 +70,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/SimpleGrid/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/phenos_{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/q-long-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
@@ -521,6 +521,24 @@ rule calc_Qx:
   shell:
     """
     Rscript code/PGA_test/calc_Q.R {params.plink_prefix} {input.c} {input.nc} {input.Tvec} {input.es} {params.num} {output}
+    rm {input.c}
+    """
+
+rule calc_Qx_long:
+  input:
+    c="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.c.betas",
+    nc="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.nc.betas",
+    genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
+    pops="output/Simulate_Genotypes/SimpleGrid/{rep}/genos.pop",
+    es="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt"
+  output:
+    qx="output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/q-long-{correction}_{nsnp}.txt"
+  params:
+    num=NUM_RESAMPLE,
+    plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos"
+  shell:
+    """
+    Rscript code/PGA_test/calc_Q_long.R {params.plink_prefix} {input.c} {input.nc} {input.pops} {input.es} {params.num} {output}
     rm {input.c}
     """
 
