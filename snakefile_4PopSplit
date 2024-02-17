@@ -76,7 +76,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/D/error.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/D/q.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, env=ENV, pc=PC, correction = CORRECTION)
 
 ##########################
 ### Simluate Genotypes ###
@@ -567,7 +567,7 @@ rule concat_Q_rep:
   input:
       expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, env=ENV, correction = CORRECTION)
   output:
-    qx="plots/4PopSplit/C/q_{rep}.txt"
+    qx="plots/4PopSplit/D/q_{rep}.txt"
   shell:
     """
     Rscript code/plot/concat_q_rep.R {input} {output}
@@ -575,9 +575,9 @@ rule concat_Q_rep:
 
 rule concat_Q_all:
   input:
-      expand("plots/4PopSplit/C/q_{rep}.txt", rep = REP)
+      expand("plots/4PopSplit/D/q_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/C/q_env.txt"
+    qx="plots/4PopSplit/D/q.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
