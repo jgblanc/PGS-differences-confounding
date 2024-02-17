@@ -25,13 +25,21 @@ dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, ph
 
 # Order the types
 dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection", "FGr", "10" , "ID"))
+
+# Read in longitude results 
+dfLong <- fread("../plots/SimpleGrid/A/q_long.txt")
+dfLong <- dfLong[,3:ncol(dfLong)]
+
+# Average Bias and false positive rate 
+dfPlot_Long <- dfLong %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
+dfPlot_Long$test <- "Longitude"
 ```
 
 ```{r}
 # Function to make bar plots with bias 
-plot_bias <- function(pheno_type, test_type, env_type) {
+plot_bias <- function(df, pheno_type, test_type, env_type) {
   
-  pl <- dfPlot %>% filter(pheno == pheno_type & test == test_type & env == env_type & type != "ID") %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
+  pl <- df %>% filter(pheno == pheno_type & test == test_type & env == env_type & type != "ID") %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
   theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), legend.position = "none", legend.text.align = 0) + 
   scale_fill_manual(values = c("goldenrod2","navy", "red4")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "$\\hat{F}_{Gr}$", "10 PCs")))) + xlab("") + ylab("Bias")
   
