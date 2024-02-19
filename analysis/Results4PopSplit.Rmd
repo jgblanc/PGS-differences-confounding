@@ -212,6 +212,20 @@ dfError_Plot <- summarize_error(dfError)
 plot_error(dfError_Plot)
 ```
 
+Bias vs SNP/Individual Ratio 
+```{r, warning=FALSE, message=FALSE}
+# Read in results 
+df <- fread("../plots/4PopSplit/D/q.txt")
+df <- df [,3:ncol(df)]
+
+# Summarize data 
+dfPlot <- compute_summary(df)
+#dfExp <- opt1(dfPlot, dfError)
+dfExp <- opt2(dfPlot, dfError_Plot)
+
+# Plot Data
+plot_bias(dfPlot, dfExp)
+```
 
 
 
