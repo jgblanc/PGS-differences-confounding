@@ -57,6 +57,20 @@ pl
 #ggsave("~/Desktop/error.png", pl, height = 7, width = 10)
 ```
 
+## Figure 1 
+
+```{r}
+df <- fread("../plots/4PopSplit/A/q.txt")
+df <- df [,3:ncol(df)]
+
+dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
+
+dfPlot %>% filter(config =="C1", gwas_size == 10000) %>% ggplot(aes(x = env, y = q_std, color = type)) + geom_point(size = 2) + facet_grid(vars(L), vars(test_size)) + theme_classic(base_size = 12)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias q") + ggtitle("Test Panel Size")
+
+```
+
+
+
 
 ## Figure 2
 
@@ -147,22 +161,23 @@ opt2 <- function(dfPlot, dfError_Plot) {
 plot_bias <- function(dfPlot, dfExp) {
   
   # Fix order
-  dfPlot$type <- factor(dfPlot$type, levels = c("1", "FGr", "ID" , "NoCorrection"))
+  dfPlot$type <- factor(dfPlot$type, levels = c("FGr", "1", "ID" , "NoCorrection"))
   dfExp$type <- factor(dfExp$type, levels = c("FGr", "1"))
 
   # Plot 
-  pl <- ggplot(data = dfPlot, aes(x = gamma, y = avg_q)) + geom_point(aes(color = type), size=2) + scale_x_log10() + 
-  geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + 
-  xlab(TeX("$\\frac{L}{M}$")) + ylab("Bias") + 
-  geom_point(data = dfExp, aes(x = gamma, y = mean_exp_bias, shape = type), color = "red", size = 2) +
+  pl <- ggplot(data = dfPlot, aes(x = gamma, y = avg_q)) + geom_point(aes(color = type, alpha = type), size=2) + scale_x_log10() + 
+  geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type, alpha = type), width = 0.1) + 
+  xlab(TeX("$\\frac{L}{M}$")) + ylab("Bias") +  
   theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) +
-  scale_color_manual(values = c("red4", "navy", "darkgreen", "goldenrod2"), labels = c("PC 1", TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correction"), name = "Bias") + 
-  scale_shape_manual(values = c(8, 4), labels = c(TeX("$\\hat{F}_{Gr}$"), "PC 1"), name = "Expected Bias")
+  scale_color_manual(values = c("navy", "red4", "darkgreen", "goldenrod2"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1", TeX("$\\tilde{F}_{Gr}$"), "No Correction"), name = "Bias") + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")
+#  + geom_point(data = dfExp, aes(x = gamma, y = mean_exp_bias, shape = type), color = "red", size = 2) +scale_shape_manual(values = c(8, 4), labels = c(TeX("$\\hat{F}_{Gr}$"), "PC 1"), name = "Expected Bias")
   
   return(pl)
 }
+
 ```
 
+### Results
 
 **Deep Split**
 
@@ -196,7 +211,10 @@ dfPlot <- compute_summary(df)
 dfExp <- opt2(dfPlot, dfError_Plot)
 
 # Plot Data
-plot_bias(dfPlot, dfExp)
+pl <- plot_bias(dfPlot, dfExp)
+pl
+
+#ggsave("~/Desktop/deep_split_q.png", pl, width = 3.95, height = 2.95)
 ```
 
 **Middle Split**
@@ -215,7 +233,7 @@ dfError_Plot <- summarize_error(dfError)
 pl <- plot_error(dfError_Plot)
 pl
 
-ggsave("~/Desktop/middle_split_error.png", pl, width = 4, height = 3)
+#ggsave("~/Desktop/middle_split_error.png", pl, width = 4, height = 3)
 ```
 
 Bias vs SNP/Individual Ratio 
@@ -230,7 +248,10 @@ dfPlot <- compute_summary(df)
 dfExp <- opt2(dfPlot, dfError_Plot)
 
 # Plot Data
-plot_bias(dfPlot, dfExp)
+pl <-plot_bias(dfPlot, dfExp)
+pl
+
+#ggsave("~/Desktop/middle_split_q.png", pl, width = 3.95, height = 2.95)
 ```
 
 **No Split**
@@ -252,6 +273,24 @@ pl
 #ggsave("~/Desktop/np_split_error.png", pl, width = 4, height = 3)
 ```
 
+Bias vs SNP/Individual Ratio 
+```{r, warning=FALSE, message=FALSE}
+# Read in results 
+df <- fread("../plots/4PopSplit/E/q.txt")
+df <- df [,3:ncol(df)]
+
+# Summarize data 
+dfPlot <- compute_summary(df)
+#dfExp <- opt1(dfPlot, dfError)
+dfExp <- opt2(dfPlot, dfError_Plot)
+
+# Plot Data
+pl <-plot_bias(dfPlot, dfExp)
+pl
+
+#ggsave("~/Desktop/no_split_q.png", pl, width = 3.95, height = 2.95)
+#ggsave("~/Desktop/legend.png", pl, width = 5, height = 2.95)
+```
 
 
 
