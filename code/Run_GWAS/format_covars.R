@@ -26,8 +26,9 @@ FGr <- fread(FGr_file, header = T)
 # Format datafile
 df <- dplyr::inner_join(pops, FGr) %>% select("FID", "IID", "POP", "FGr")
 pops <- unique(df$POP)
-df <- df %>% mutate(PopID = case_when((POP == pops[1]) ~ 1, (POP == pops[2]) ~ 0))
-df$PopID <- df$PopID - mean(df$PopID)
+#df <- df %>% mutate(PopID = case_when((POP == pops[1]) ~ 1, (POP == pops[2]) ~ 0))
+#df$PopID <- df$PopID - mean(df$PopID)
+df$PopID <- 0
 
 # Read in eigenvec files
 vecs <- fread(evec_file)

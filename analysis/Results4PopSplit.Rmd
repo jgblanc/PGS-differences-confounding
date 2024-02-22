@@ -60,7 +60,7 @@ pl
 ## Figure 1 
 
 ```{r}
-df <- fread("../plots/4PopSplit/A/q.txt")
+df <- fread("../plots/4PopSplit/A/q_Fig1_C1.txt")
 df <- df [,3:ncol(df)]
 
 dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
@@ -166,11 +166,10 @@ plot_bias <- function(dfPlot, dfExp) {
 
   # Plot 
   pl <- ggplot(data = dfPlot, aes(x = gamma, y = avg_q)) + geom_point(aes(color = type, alpha = type), size=2) + scale_x_log10() + 
-  geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type, alpha = type), width = 0.1) + 
   xlab(TeX("$\\frac{L}{M}$")) + ylab("Bias") +  
   theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) +
-  scale_color_manual(values = c("navy", "red4", "darkgreen", "goldenrod2"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1", TeX("$\\tilde{F}_{Gr}$"), "No Correction"), name = "Bias") + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")
-#  + geom_point(data = dfExp, aes(x = gamma, y = mean_exp_bias, shape = type), color = "red", size = 2) +scale_shape_manual(values = c(8, 4), labels = c(TeX("$\\hat{F}_{Gr}$"), "PC 1"), name = "Expected Bias")
+  scale_color_manual(values = c("navy", "red4", "darkgreen", "goldenrod2"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1", TeX("$\\tilde{F}_{Gr}$"), "No Correction"), name = "Bias") + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type, alpha = type), width = 0.1)
+  #+ geom_point(data = dfExp, aes(x = gamma, y = mean_exp_bias, shape = type), color = "red", size = 2) +scale_shape_manual(values = c(8, 4), labels = c(TeX("$\\hat{F}_{Gr}$"), "PC 1"), name = "Expected Bias") 
   
   return(pl)
 }
