@@ -4,9 +4,8 @@
 CONFIG=["C1"]
 GWAS_SIZE=["gp-1000"]
 TEST_SIZE=["tp-1000"]
-#PC=["1"]
-#CORRECTION = PC + ["FGr", "NoCorrection", "ID"]
-CORRECTION = ["NoCorrection", "ID"]
+PC=["1"]
+CORRECTION = PC + ["FGr", "NoCorrection", "ID"]
 NUM_RESAMPLE = 1000
 
 
