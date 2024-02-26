@@ -1,6 +1,6 @@
 ## Snakefile to run 4 Pop Simulations
 
-CONFIG=["C2"]
+CONFIG=["C1"]
 GWAS_SIZE=["gp-10000"]
 TEST_SIZE=["tp-10000"]
 PC=["1"]
