@@ -110,7 +110,10 @@ ncQ <- calc_q(pgs(ncX,ncbetas$BETA_Strat), Tvec)
 # Compute true values of q
 true_betas <- fread(true_file)
 colnames(true_betas) <- c("ID", "A1", "BETA_Strat")
-trueQ <- calc_q(pgs(cX,true_betas$BETA_Strat), Tvec)
+trueX <- read_genos(genos_prefix, true_betas)
+rownames(trueX) <- fam$IID
+trueX <- trueX[rownames(trueX) %in% dfTvec$IID, ]
+trueQ <- calc_q(pgs(trueX,true_betas$BETA_Strat), Tvec)
 
 ## Compute empirical p-values
 
