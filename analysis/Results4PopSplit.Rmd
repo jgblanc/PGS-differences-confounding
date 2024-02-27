@@ -283,14 +283,26 @@ df <- fread("../plots/4PopSplit/A/q_causal.txt")
 df <- df [,3:ncol(df)]
 
 # Summarize data 
-dfPlot <- compute_summary(df)
+dfPlot_nc <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))))
+dfPlot_nc$effects <- "Ascertained" 
+dfPlot_c <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`c-q`),lowerci_mean = avg_q - (1.96 * (sd(`c-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`c-q`)  /  sqrt(n()))))
+dfPlot_c$effects <- "Causal"
+dfPlot <- rbind(dfPlot_nc, dfPlot_c)
 
 # Get true q 
-dfTrue <- df%>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L) %>% summarize(count = n())
+dfTrue <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L) %>% summarize(count = n(), avg_q = mean(`true-q`))
+dfTrue$type <- "True Effect Size" 
+dfTrue_nc <- dfTrue
+dfTrue_nc$effects <- "Ascertained"
+dfTrue_c <- dfTrue
+dfTrue_c$ effects <- "Causal"
+dfTrue <- rbind(dfTrue_nc, dfTrue_c)
 
+# Final plotting data set
+dfFinal <- rbind(dfPlot, dfTrue)
 
 # Plot data 
-ggplot(data = dfPlot, aes(x = ts, y = avg_q, color = type)) + geom_point() + facet_wrap(~env) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.01)
+ggplot(data = dfFinal, aes(x = ts, y = avg_q, color = type)) + geom_point() + facet_grid(vars(env), vars(effects)) 
 
 ```
 
