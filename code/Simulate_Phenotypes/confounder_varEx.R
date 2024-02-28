@@ -123,5 +123,3 @@ for (i in 1:nrow(dfOut)) {
 # Save weights
 fwrite(dfOut, out_file,row.names=F,quote=F,sep="\t", col.names = T)
 
-# Save weights
-fwrite(B, out_file,row.names=F,quote=F,sep="\t", col.names = T)
