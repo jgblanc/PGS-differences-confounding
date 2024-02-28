@@ -27,7 +27,7 @@ vecs <- scale(vecs)
 # Load T^GWAS
 Tm = fread(Tm_file)
 print(head(Tm))
-Tm = Tm$Fgr
+Tm = Tm$FGr
 
 # Normalize T to have var 1
 Tm <- scale(Tm)
