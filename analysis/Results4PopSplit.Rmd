@@ -11,6 +11,7 @@ library(data.table)
 library(tidyverse)
 library(latex2exp)
 library(ggpubr)
+library(ggh4x)
 ```
 
 
@@ -283,14 +284,14 @@ df <- fread("../plots/4PopSplit/A/q_causal.txt")
 df <- df [,3:ncol(df)]
 
 # Summarize data 
-dfPlot_nc <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))))
+dfPlot_nc <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), avg_true = mean(`true-q`))
 dfPlot_nc$effects <- "Ascertained" 
-dfPlot_c <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`c-q`),lowerci_mean = avg_q - (1.96 * (sd(`c-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`c-q`)  /  sqrt(n()))))
+dfPlot_c <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`c-q`),lowerci_mean = avg_q - (1.96 * (sd(`c-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`c-q`)  /  sqrt(n()))), avg_true = mean(`true-q`))
 dfPlot_c$effects <- "Causal"
 dfPlot <- rbind(dfPlot_nc, dfPlot_c)
 
 # Get true q 
-dfTrue <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L) %>% summarize(count = n(), avg_q = mean(`true-q`))
+dfTrue <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L) %>% summarize(count = n(), avg_q = mean(`true-q`), avg_true = mean(`true-q`))
 dfTrue$type <- "True Effect Size" 
 dfTrue_nc <- dfTrue
 dfTrue_nc$effects <- "Ascertained"
@@ -301,8 +302,24 @@ dfTrue <- rbind(dfTrue_nc, dfTrue_c)
 # Final plotting data set
 dfFinal <- rbind(dfPlot, dfTrue)
 
+# Order factors
+dfFinal$type <- factor(dfFinal$type, levels = c("1", "FGr", "ID" , "NoCorrection", "True Effect Size"))
+
+# Fix facet names 
+dfFinal <- dfFinal %>% mutate(direction = case_when(env == -0.1 ~ "Opposite Direction", env == 0 ~ "No Environmental Stratification", env == 0.1 ~ "Same Direction"))
+dfFinal$facet2 <- factor(dfFinal$direction, levels = c("Opposite Direction","No Environmental Stratification","Same Direction" ))
+dfFinal$effects <- factor(dfFinal$effects, levels = c("Causal","Ascertained"))
+
+# Pull out just estimated effect sizes for error bars
+dfEB <- dfFinal %>% filter(type %in% c("1", "FGr", "ID" , "NoCorrection"))
+
 # Plot data 
-ggplot(data = dfFinal, aes(x = ts, y = avg_q, color = type)) + geom_point() + facet_grid(vars(env), vars(effects)) 
+labs <-  c("PC 1",TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correction" ,"True Effect Size")
+ggplot(data = dfFinal, aes(x = avg_true, y = avg_q, color = type, shape = type)) + geom_point(aes(size = type)) + facet_grid(vars(effects), vars(facet2), scales = "free_y") + geom_errorbar(data = dfEB, aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.01, alpha = 0.5) + theme_classic(base_size = 12) + 
+  theme(legend.text.align = 0)+ geom_hline(yintercept = 0, color = "red") + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.title = element_text(size = 12)) +
+  scale_colour_manual(name = "",labels = labs, values = c("red4" , "navy",  "darkgreen", "goldenrod2", "red")) + 
+  scale_shape_manual(name = "",labels = labs, values = c(16, 16, 16,16, 8)) + 
+  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2, 4))
 
 ```
 
