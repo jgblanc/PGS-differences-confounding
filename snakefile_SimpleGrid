@@ -35,11 +35,6 @@ PHENO = ["DIAG", "LAT", "PS"]
 TEST = ["LAT", "PS"]
 
 
-### Signal - Figures 2
-#ENV = ["env_0.0", "env_-0.1", "env_0.1"]
-#TS=["p-0.50", "p-0.53", "p-0.56", "p-0.59", "p-0.62"]
-#NUM_CAUSAL = ["c-200", "c-2000", "c-20000"]
-
 
 wildcard_constraints:
   rep="[A-Z]\d+",
@@ -70,7 +65,18 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/FGr_varEx-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/confounder_varEx-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+
+
+rule concat_confounder:
+  input:
+      expand("output/Simulate_Phenotypes/SimpleGrid/{rep}/{{gwas_size}}/{{test_size}}/{{h2}}/{{nc}}/{{env}}/{{pheno}}/pca_weights_varEx-{{nsnp}}.txt", rep = REP)
+  output:
+    "plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/confounder_varEx-{nsnp}.txt"
+  shell:
+    """
+    Rscript code/plot/concat_varEx_SimpleGrid.R {input} {output}
+    """
 
 
 ##########################
@@ -636,4 +642,6 @@ rule concat_Q_all:
     Rscript code/plot/concat_all.R {input} {output}
     rm {input}
     """
+
+### Concat Variance Explained ###
 
