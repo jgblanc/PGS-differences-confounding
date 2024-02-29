@@ -133,7 +133,16 @@ out <- ggarrange(sv1, sv2, sv3, nrow = 4, ncol = 1)
 ggsave("~/Desktop/fig4.png", out, height = 10, width = 12)
 ```
 
+## Variance Explained Plots 
 
+#### Confounder
+
+```{r}
+df <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/confounder_varEx-L-20000.txt")[,2:6]
+colnames(df)[1] <- "PC"
+
+
+```
 
 
 
