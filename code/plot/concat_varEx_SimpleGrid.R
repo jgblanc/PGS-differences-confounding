@@ -25,7 +25,7 @@ for (i in 2:(nfile-1)) {
 }
 
 # Compute mean and confidence intervals
-out <- out %>% group_by(rep) %>% summarise(num = n(), avg_r2 = mean(V2),
+out <- out %>% group_by(V1) %>% summarise(num = n(), avg_r2 = mean(V2),
                                            lowerci = avg_r2 - (1.96 * (sd(V2)  /  sqrt(n()))),
                                            upperci = avg_r2 + (1.96 * (sd(V2)  /  sqrt(n()))))
 
