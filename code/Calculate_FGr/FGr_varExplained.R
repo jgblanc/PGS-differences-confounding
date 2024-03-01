@@ -42,11 +42,10 @@ dfOut[,1] <- seq(1,ncol(vecs))
 # Compute multiple R^2 and rho(PC, FGr)
 for (i in 1:nrow(dfOut)) {
 
-
+  print(i)  
   # Compute variance explained
   mod <- lm(Tm ~ vecs[,1:i])
   r2 <- cor(Tm, fitted(mod))^2
-  print(r2)
 
 
   # Collect output

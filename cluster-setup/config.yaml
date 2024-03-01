@@ -11,7 +11,7 @@ cluster:
 default-resources:
   - partition=tier2q
   - mem_mb=1000
-  - time="00:30:00"
+  - time="03:00:00"
 restart-times: 10
 max-jobs-per-second: 1
 max-status-checks-per-second: 1
