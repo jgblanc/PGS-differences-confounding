@@ -138,45 +138,62 @@ ggsave("~/Desktop/fig4.png", out, height = 10, width = 12)
 #### Confounder
 
 ```{r}
-df <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/LAT/confounder_varEx-L-20000.txt")[,2:6]
-colnames(df)[1] <- "PC"
-df$color <-c(rep("TRUE", 10), rep("FALSE", 0))
+make_confounder_plot <- function(df, lab_title) {
+  
+  pl  <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "purple4", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ scale_alpha_manual(values = c(0.25, 1), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) +theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold', size = 12)) + ggtitle(lab_title)
+  #+ geom_point(size = 1, aes( alpha = color)) 
+  
+  return(pl)
+}
 
-pl <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "purple4", aes( alpha = color)) + geom_point(size = 2) + ylab(TeX("Variance in Confounder Explained")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ geom_errorbar(aes(ymin = lowerci, ymax = upperci), width = 0.3) + scale_alpha_manual(values = c(1, 0.5), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) + scale_x_continuous(breaks = seq(1,10))
-pl
+make_FGr_plot <- function(df, lab_title) {
+  
+  pl  <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "navy", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ scale_alpha_manual(values = c(0.25, 1), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) +theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold', size = 12)) + ggtitle(lab_title)
+  #+ geom_point(size = 1, aes( alpha = color)) 
+  
+  return(pl)
+}
+```
+
+
+
+```{r}
+dfLat <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/LAT/confounder_varEx-L-20000.txt")[,2:6]
+colnames(dfLat)[1] <- "PC"
+dfLat$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+
+dfDiag <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/Diag/confounder_varEx-L-20000.txt")[,2:6]
+colnames(dfDiag)[1] <- "PC"
+dfDiag$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+
+dfPS <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/confounder_varEx-L-20000.txt")[,2:6]
+colnames(dfPS)[1] <- "PC"
+dfPS$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+
+cLat <- make_confounder_plot(dfLat, "Latitude")
+cDiag <- make_confounder_plot(dfDiag, "Diagonal")
+cPS <- make_confounder_plot(dfPS, "Single Deme")
 ```
 
 
 ```{r}
-df <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/")[,2:6]
-colnames(df)[1] <- "PC"
-df$color <-c(rep("TRUE", 10), rep("FALSE", 0))
+dfLat <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/LAT/FGr_varEx-L-20000.txt")[,2:6]
+colnames(dfLat)[1] <- "PC"
+dfLat$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
 
-pl <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "purple4", aes( alpha = color)) + geom_point(size = 2) + ylab(TeX("Variance in Confounder Explained")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ geom_errorbar(aes(ymin = lowerci, ymax = upperci), width = 0.3) + scale_alpha_manual(values = c(1, 0.5), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) + scale_x_continuous(breaks = seq(1,10))
-pl
-```
+dfPS <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/PS/FGr_varEx-L-20000.txt")[,2:6]
+colnames(dfPS)[1] <- "PC"
+dfPS$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
 
-
-
-```{r}
-df <- fread("~/Downloads/confounder_LAT.txt")
-colnames(df) <- c("PC", "r2")
-df$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
-
-pl <- ggplot(data = df, aes(x = PC, y = r2)) + geom_bar(stat = "identity", fill = "purple4", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 20) + ylim(0,1) + scale_alpha_manual(values = c(0.25, 1), guide="none") + theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold')) + ggtitle("Latitude")+ geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1)  
-pl
-
-ggsave("~/Desktop/lat.png", pl, width = 7, height = 5)
+fLat <- make_FGr_plot(dfLat, "Latitude")
+fPS <- make_FGr_plot(dfPS, "Single Deme")
 ```
 
 ```{r}
-df <- fread("~/Downloads/FGr_PS.txt")
-colnames(df) <- c("PC", "r2")
-df$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
-
-pl <- ggplot(data = df, aes(x = PC, y = r2)) + geom_bar(stat = "identity", fill = "navy", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 20) + ylim(0,1) + scale_alpha_manual(values = c(0.25, 1), guide="none") + theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold')) + ggtitle("Single Deme")+ geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1)  
-pl
-
-ggsave("~/Desktop/psFgr.png", pl, width = 7, height = 5)
+pl <- ggarrange(cLat,  fLat, cDiag, fLat, cPS, fPS, ncol=2, nrow =3)
+ggsave("~/Desktop/fig5.png", pl, height = 8)
 ```
+
+
+
 

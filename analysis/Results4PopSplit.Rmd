@@ -313,14 +313,6 @@ dfFinal$effects <- factor(dfFinal$effects, levels = c("Causal","Ascertained"))
 # Pull out just estimated effect sizes for error bars
 dfEB <- dfFinal %>% filter(type %in% c("1", "FGr", "ID" , "NoCorrection"))
 
-# Plot data 
-labs <-  c("PC 1",TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correction" ,"True Effect Size")
-ggplot(data = dfFinal, aes(x = avg_true, y = avg_q, color = type, shape = type)) + geom_point(aes(size = type)) + facet_grid(vars(effects), vars(facet2), scales = "free_y") + geom_errorbar(data = dfEB, aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.01, alpha = 0.5) + theme_classic(base_size = 12) + 
-  theme(legend.text.align = 0)+ geom_hline(yintercept = 0, color = "red") + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.title = element_text(size = 12)) +
-  scale_colour_manual(name = "",labels = labs, values = c("red4" , "navy",  "darkgreen", "goldenrod2", "red")) + 
-  scale_shape_manual(name = "",labels = labs, values = c(16, 16, 16,16, 8)) + 
-  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2, 4))
-
 ```
 
 
@@ -328,7 +320,7 @@ ggplot(data = dfFinal, aes(x = avg_true, y = avg_q, color = type, shape = type))
 
 ```{r}
 # Plot labels
-labs <-  c("PC 1",TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correction")
+labs <-  c("PC 1",TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correction", "Causal Effects")
 
 # Prep to plot
 dfEB$x <- as.factor(round(dfEB$avg_true,2))
@@ -337,11 +329,9 @@ dfTrue_c $x <- as.factor(round(dfTrue_c$avg_true,2))
 # Plot
 dfEB %>% filter(effects == "Causal") %>% ggplot(aes(x = x, y = avg_q, color = type))+ geom_point(position=position_dodge(width=1))+ facet_wrap(~facet2) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.5, position=position_dodge(width=1)) + theme_classic(base_size = 12) + 
   theme(legend.text.align = 0) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.title = element_text(size = 12)) +
-  scale_colour_manual(name = "",labels = labs, values = c("red4" , "navy",  "darkgreen", "goldenrod2")) + 
+  scale_colour_manual(name = "",labels = labs, values = c("red4" , "navy",  "darkgreen", "goldenrod2", "red")) + 
   scale_shape_manual(name = "",labels = labs, values = c(16, 16, 16,16)) + 
-  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2)) + geom_errorbar(data =dfTrue_c, aes(xmin = x, xmax = x, y = avg_q, yend = avg_q), color = "black", linetype = "dashed")
-
-#+ geom_hline(data = dfTrue_c, aes(yintercept = avg_q), color = "black", linetype = "dashed")
+  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2)) + geom_errorbar(data =dfTrue_c, aes(ymin = avg_q, ymax = avg_q, color = type)) + xlab(TeX("$E\\left[q\\right]$")) + ylab(TeX("$E\\left[\\hat{q}\\right]$"))
 ```
 
 
