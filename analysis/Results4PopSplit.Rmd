@@ -200,6 +200,14 @@ pl
 #ggsave("~/Desktop/deep_split_q.png", pl, width = 3.95, height = 2.95)
 ```
 
+
+```{r}
+data <- inner_join(dfExp, dfPlot)
+
+ggplot(data = data, aes(x = mean_exp_bias, y = avg_q, color = type)) + geom_point() + geom_abline(slope=1, intercept=0) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + xlab("Expected Bias") + ylab("Observed Bias")
+```
+
+
 **Middle Split**
 
 First Split: 300  
@@ -236,6 +244,13 @@ pl
 
 #ggsave("~/Desktop/middle_split_q.png", pl, width = 3.95, height = 2.95)
 ```
+
+```{r}
+data <- inner_join(dfExp, dfPlot)
+
+ggplot(data = data, aes(x = mean_exp_bias, y = avg_q, color = type)) + geom_point() + geom_abline(slope=1, intercept=0) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + xlab("Expected Bias") + ylab("Observed Bias")
+```
+
 
 **No Split**
 
@@ -275,6 +290,12 @@ pl
 #ggsave("~/Desktop/legend.png", pl, width = 5, height = 2.95)
 ```
 
+
+```{r}
+data <- inner_join(dfExp, dfPlot)
+
+ggplot(data = data, aes(x = mean_exp_bias, y = avg_q, color = type)) + geom_point() + geom_abline(slope=1, intercept=0) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + xlab("Expected Bias") + ylab("Observed Bias")
+```
 
 ## Figure 3
 
