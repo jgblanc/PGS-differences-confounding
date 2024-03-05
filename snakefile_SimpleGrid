@@ -18,13 +18,13 @@ NUM_RESAMPLE = 1000
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = []
-for i in range(1,101):
-  REP.append("A"+str(i))
+REP = ["A1"]
+#for i in range(1,101):
+#  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-20000"]
+NSNP = ["L-20000", "L-10000"]
 ENV = ["env_0.2"]
 NUM_CAUSAL = ["c-300"]
 
