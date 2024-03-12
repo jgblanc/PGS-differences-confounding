@@ -202,9 +202,8 @@ pl
 
 
 ```{r}
-data <- inner_join(dfExp, dfPlot)
-
-ggplot(data = data, aes(x = mean_exp_bias, y = avg_q, color = type)) + geom_point() + geom_abline(slope=1, intercept=0) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + xlab("Expected Bias") + ylab("Observed Bias")
+dataDeep <- inner_join(dfExp, dfPlot)
+dataDeep$Split <- "Deep Split"
 ```
 
 
@@ -246,11 +245,9 @@ pl
 ```
 
 ```{r}
-data <- inner_join(dfExp, dfPlot)
-
-ggplot(data = data, aes(x = mean_exp_bias, y = avg_q, color = type)) + geom_point() + geom_abline(slope=1, intercept=0) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + xlab("Expected Bias") + ylab("Observed Bias")
+dataMiddle <- inner_join(dfExp, dfPlot)
+dataMiddle$Split <- "Middle Split"
 ```
-
 
 **No Split**
 
@@ -292,10 +289,23 @@ pl
 
 
 ```{r}
-data <- inner_join(dfExp, dfPlot)
-
-ggplot(data = data, aes(x = mean_exp_bias, y = avg_q, color = type)) + geom_point() + geom_abline(slope=1, intercept=0) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.05) + xlab("Expected Bias") + ylab("Observed Bias")
+dataNoSplit <- inner_join(dfExp, dfPlot)
+dataNoSplit$Split <- "No Split"
 ```
+
+#### Supplement
+
+```{r}
+df <- rbind(dataDeep, dataMiddle, dataNoSplit)
+df$type <- factor(df$type, levels = c("FGr", "1"))
+
+pl <- ggplot(data = df, aes(x = mean_exp_bias, y = avg_q, color = type, shape = Split)) + geom_point(size = 2) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type), width = 0.1) + geom_abline(slope = 1, intercept = 0) +  
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) +
+  scale_color_manual(values = c("navy", "red4"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1"), name = "Correction") + xlab("Expected Bias") + ylab("Observed Bias")
+
+ggsave("~/Desktop/sup1.png", pl, width = 8, height = 6)
+```
+
 
 ## Figure 3
 
