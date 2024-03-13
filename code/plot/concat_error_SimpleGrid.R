@@ -19,7 +19,7 @@ out$rep <- tmp_name[4]
 out$gwas_size <- as.numeric(strsplit(tmp_name[5], "-")[[1]][2])
 out$test_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
 out$test <- tmp_name[7]
-tmp1 <- strsplit(tmp_name[8], "-")[[1]][2]
+tmp1 <- strsplit(tmp_name[8], "L-")[[1]][2]
 out$L <- strsplit(tmp1, ".txt")[[1]][1]
 
 # Loops through all other files and add onto output
