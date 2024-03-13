@@ -2,7 +2,7 @@
 
 args=commandArgs(TRUE)
 
-if(length(args)<3){stop("Rscript bootstrap_error.R <FGr file> <outfile> ")}
+if(length(args)<2){stop("Rscript bootstrap_error.R <FGr file> <outfile> ")}
 
 suppressWarnings(suppressMessages({
   library(data.table)
@@ -22,25 +22,21 @@ print(n)
 
 # Compute bootstrap samples
 sigma_j <- rep(0, 36)
-for (j in 1:36) {
-
+for (j in 0:35) {
+ 
   # Select only individuals from a single deme
-  dfTmp <- df %>% filter(POP == n)
+  dfTmp <- df %>% filter(POP == j)
   FGr <- dfTmp$FGr
-  FGrBar <- mead(FGr)
+  FGrBar <- mean(FGr)
 
   # For each deme compute variance
-  tmp <- rep(0, n)
-  for (i in 1:n) {
-    tmp[i] <- (FGr[i] - FGrBar)^2
-  }
-  sigma_j[j] <- (n / (n-1)) * sum(tmp)
+  sigma_j[j+1] <- mean(FGr^2) - (FGrBar^2)
+
 }
 
 
+print(sigma_j)
 # Compute error
-print((1/36) * sum(sigma_j))
-print(var(df$FGr))
 error <- ((1/36) * sum(sigma_j)) / var(df$FGr)
 
 # Save output
