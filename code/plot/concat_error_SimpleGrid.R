@@ -31,7 +31,7 @@ for (i in 2:(nfile-1)) {
   tmp$gwas_size <- as.numeric(strsplit(tmp_name[5], "-")[[1]][2])
   tmp$test_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
   tmp$test <- tmp_name[7]
-  tmp1 <- strsplit(tmp_name[8], "-")[[1]][2]
+  tmp1 <- strsplit(tmp_name[8], "L-")[[1]][2]
   tmp$L <- strsplit(tmp1, ".txt")[[1]][1]
   out <- rbind(out, tmp)
 
