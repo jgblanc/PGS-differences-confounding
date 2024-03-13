@@ -22,19 +22,22 @@ out$test <- tmp_name[7]
 tmp1 <- strsplit(tmp_name[8], "L-")[[1]][2]
 out$L <- strsplit(tmp1, ".txt")[[1]][1]
 
-# Loops through all other files and add onto output
-for (i in 2:(nfile-1)) {
 
-  tmp <- fread(args[i])
-  tmp_name <- strsplit(args[i], "/")[[1]]
-  tmp$rep <- tmp_name[4]
-  tmp$gwas_size <- as.numeric(strsplit(tmp_name[5], "-")[[1]][2])
-  tmp$test_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
-  tmp$test <- tmp_name[7]
-  tmp1 <- strsplit(tmp_name[8], "L-")[[1]][2]
-  tmp$L <- strsplit(tmp1, ".txt")[[1]][1]
-  out <- rbind(out, tmp)
+if (nfile > 2) {
+   # Loops through all other files and add onto output
+   for (i in 2:(nfile-1)) {
 
+       tmp <- fread(args[i])
+       tmp_name <- strsplit(args[i], "/")[[1]]
+       tmp$rep <- tmp_name[4]
+       tmp$gwas_size <- as.numeric(strsplit(tmp_name[5], "-")[[1]][2])
+       tmp$test_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
+       tmp$test <- tmp_name[7]
+       tmp1 <- strsplit(tmp_name[8], "L-")[[1]][2]
+       tmp$L <- strsplit(tmp1, ".txt")[[1]][1]
+       out <- rbind(out, tmp)
+
+    }
 }
 
 # Save output
