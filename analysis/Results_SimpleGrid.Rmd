@@ -206,5 +206,12 @@ dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, ph
 ggplot(data = dfPlot, aes(x = type, y = avg_q)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) + facet_wrap(~L)
 ```
 
+## Bootstrap Error 
+
+```{r}
+df <- fread("../plots/SimpleGrid/A/error_PS.txt")[,2:7]
+
+dfTable <- df %>% group_by(gwas_size, test_size, L, test) %>% summarise(count = n(), avg_error = mean(Error))
+```
 
 
