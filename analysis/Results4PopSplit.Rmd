@@ -369,6 +369,74 @@ dfEB %>% filter(effects == "Causal") %>% ggplot(aes(x = x, y = avg_q, color = ty
 
 
 
+```{r}
+simulate <- function(N, M, L) {
+  
+  Tvec <- c(rep(-1, N/2), rep(1, N/2)) 
+  Tvec <- scale(Tvec)
+  tilde <- c(rep(-1, M/2), rep(1, M/2)) 
+  pA <- 0.4
+  pB <- 0.6
+
+  # Make Genotype Matrices
+  G <- matrix(NA, nrow = M, ncol = L)
+  for (l in 1:L) {
+    G[,l] <- c(rbinom(M/2, 2, pA), rbinom(M/2, 2, pB))
+  }
+
+  X <- matrix(NA, nrow = N, ncol = L)
+  for (l in 1:L) {
+    X[,l] <- c(rbinom(N/2, 2, pA), rbinom(N/2, 2, pB))
+  }
+
+
+  # Compute FGr
+  r <- t(X) %*% Tvec
+  Gvar <- apply(G, 2, var)
+  FGr <- G %*% diag(1/Gvar) %*% r
+  FGr <- scale(FGr)
+
+  # Compute Error FGr
+  Error_FGr <- 1 -  ((t(tilde) %*% FGr) / (norm(tilde,type="2") * norm(FGr,type="2")))^2  
+
+  # Compute PCA 
+  myE <- svd(G)
+  u1 <- scale(myE$u[,1])
+
+  # Compute Error PC1
+  Error_PC <- 1 -  ((t(tilde) %*% u1) / (norm(tilde,type="2") * norm(u1,type="2")))^2  
+
+  return(list(Error_FGr, Error_PC))
+
+}
+
+# M = 100
+df100 <- matrix(NA, nrow = 1000, ncol = 2)
+for (i in 1:1000) {
+  out <- simulate(100, 100, 100)
+  df100[i,1] <- out[[1]][1]
+  df100[i,2] <- out[[2]][1]
+}
+df100 <- colMeans(df100)
+
+# M = 1000
+df1000 <- matrix(NA, nrow = 1000, ncol = 2)
+for (i in 1:1000) {
+  out <- simulate(100, 1000, 100)
+  df1000[i,1] <- out[[1]][1]
+  df1000[i,2] <- out[[2]][1]
+}
+df1000 <- colMeans(df1000)
+
+# M = 1000
+df10 <- matrix(NA, nrow = 1000, ncol = 2)
+for (i in 1:1000) {
+  out <- simulate(100, 10, 100)
+  df10[i,1] <- out[[1]][1]
+  df10[i,2] <- out[[2]][1]
+}
+df10 <- colMeans(df10, na.rm = T)
+```
 
 
 
