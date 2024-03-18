@@ -31,8 +31,8 @@ NUM_CAUSAL = ["c-300"]
 
 ### No Signal - Figures 1, S1, S2
 HERITABILITY = ["h2-0.0"]
-PHENO = ["LAT"]
-TEST = ["LAT"]
+PHENO = ["PS"]
+TEST = ["PS"]
 
 
 
