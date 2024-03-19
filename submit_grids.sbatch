@@ -20,5 +20,5 @@ echo "SLURM_JOBID="$SLURM_JOBID
 cat snakefile_SimpleGrid
 snakemake -s snakefile_SimpleGrid --unlock
 #snakemake -np -s snakefile_SimpleGrid 
-snakemake --profile cluster-setup/ -s snakefile_SimpleGrid --rerun-incomplete 
+snakemake --profile cluster-setup/ -s snakefile_SimpleGrid_PS --rerun-incomplete 
 

@@ -12,9 +12,9 @@ TEST = ["PS"]
 
 
 # Big
-REP = ["A1"]
-#for i in range(1,101):
-#  REP.append("A"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -38,20 +38,16 @@ wildcard_constraints:
 
 def get_env(x):
   tmp = float(x.split("-")[1])
-  out = float(60 / (tmp * 0.0015))
+  out = float(1000 / (tmp * 0.05))
   return out
 
-def get_nc(x):
+def get_nc(x):  
   tmp = x.split("-")[1]
-  out = int(float(tmp) * 0.0015)
+  out = int(float(tmp) * 0.05)
   return out
 
 def get_params(x):
   out = x.split("-")[1]
-  return out
-
-def get_env(x):
-  out = x.split("_")[1]
   return out
 
 def get_pc_num(x):
@@ -490,7 +486,7 @@ rule pick_SNPS:
       c="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.c.betas",
       nc="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos-gwas_{nsnp}_{correction}.nc.betas"
     params:
-      num_snps = lambda wildcards: get_params(wildcards.nc)
+      num_snps = lambda wildcards: get_nc(wildcards.nsnp)
     shell:
       """
       Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
