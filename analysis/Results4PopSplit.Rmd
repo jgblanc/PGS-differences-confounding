@@ -76,9 +76,9 @@ summarize_error <- function(dfError) {
 plot_error <- function(dfError_Plot) {
 
   # Plot 
-  pl <-ggplot(data = dfError_Plot, aes(x = gamma, y = avg_error, color = type)) + geom_point(size=2) +
+  pl <-ggplot(data = dfError_Plot, aes(x = L, y = avg_error, color = type)) + geom_point(size=2) +
   geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.1) + scale_x_log10() +
-  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) + xlab(TeX("$\\frac{L}{M}$")) + ylab("Error") + ylim(0,1) + scale_color_manual(values = c("navy", "red4"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1"), name = "")
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed'), axis.title.y = element_text(margin = margin(r = 0))) + xlab(TeX("$L$")) + ylab("Error") + ylim(0,1) + scale_color_manual(values = c("navy", "red4"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1"), name = "")
   
   return(pl)
 }
@@ -149,9 +149,9 @@ plot_bias <- function(dfPlot, dfExp) {
   dfExp$type <- factor(dfExp$type, levels = c("FGr", "1"))
 
   # Plot 
-  pl <- ggplot(data = dfPlot, aes(x = gamma, y = avg_q)) + geom_point(aes(color = type, alpha = type), size=2) + scale_x_log10() + 
-  xlab(TeX("$\\frac{L}{M}$")) + ylab("Bias") +  
-  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) +
+  pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q)) + geom_point(aes(color = type, alpha = type), size=2) + scale_x_log10() + 
+  xlab(TeX("$L$")) + ylab("Bias") +  
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed'), axis.title.y = element_text(margin = margin(r = 14)), plot.margin = margin(t = 10, r = 10, b = 10, l = 10)) +
   scale_color_manual(values = c("navy", "red4", "darkgreen", "goldenrod2"), labels = c(TeX("$\\hat{F}_{Gr}$"),"PC 1", TeX("$\\tilde{F}_{Gr}$"), "No Correction"), name = "Bias") + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean, color = type, alpha = type), width = 0.1)
   #+ geom_point(data = dfExp, aes(x = gamma, y = mean_exp_bias, shape = type), color = "red", size = 2) +scale_shape_manual(values = c(8, 4), labels = c(TeX("$\\hat{F}_{Gr}$"), "PC 1"), name = "Expected Bias") 
   
@@ -179,7 +179,7 @@ dfError_Plot <- summarize_error(dfError)
 pl <- plot_error(dfError_Plot)
 pl
 
-#ggsave("~/Desktop/deep_split_error.png", pl, width = 4, height = 3)
+ggsave("~/Desktop/deep_split_error.png", pl, width = 4, height = 3)
 ```
 
 Bias vs SNP/Individual Ratio 
@@ -197,7 +197,7 @@ dfExp <- opt2(dfPlot, dfError_Plot)
 pl <- plot_bias(dfPlot, dfExp)
 pl
 
-#ggsave("~/Desktop/deep_split_q.png", pl, width = 3.95, height = 2.95)
+ggsave("~/Desktop/deep_split_q.png", pl, width = 3.95, height = 2.95)
 ```
 
 
@@ -223,7 +223,7 @@ dfError_Plot <- summarize_error(dfError)
 pl <- plot_error(dfError_Plot)
 pl
 
-#ggsave("~/Desktop/middle_split_error.png", pl, width = 4, height = 3)
+ggsave("~/Desktop/middle_split_error.png", pl, width = 4, height = 3)
 ```
 
 Bias vs SNP/Individual Ratio 
@@ -241,7 +241,7 @@ dfExp <- opt2(dfPlot, dfError_Plot)
 pl <-plot_bias(dfPlot, dfExp)
 pl
 
-#ggsave("~/Desktop/middle_split_q.png", pl, width = 3.95, height = 2.95)
+ggsave("~/Desktop/middle_split_q.png", pl, width = 3.95, height = 2.95)
 ```
 
 ```{r}
@@ -265,7 +265,7 @@ dfError_Plot <- summarize_error(dfError)
 pl <- plot_error(dfError_Plot)
 pl
 
-#ggsave("~/Desktop/np_split_error.png", pl, width = 4, height = 3)
+ggsave("~/Desktop/np_split_error.png", pl, width = 4, height = 3)
 ```
 
 Bias vs SNP/Individual Ratio 
@@ -283,7 +283,7 @@ dfExp <- opt2(dfPlot, dfError_Plot)
 pl <-plot_bias(dfPlot, dfExp)
 pl
 
-#ggsave("~/Desktop/no_split_q.png", pl, width = 3.95, height = 2.95)
+ggsave("~/Desktop/no_split_q.png", pl, width = 3.95, height = 2.95)
 #ggsave("~/Desktop/legend.png", pl, width = 5, height = 2.95)
 ```
 
