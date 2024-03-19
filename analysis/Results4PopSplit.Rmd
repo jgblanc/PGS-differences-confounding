@@ -18,39 +18,33 @@ library(ggh4x)
 ## Figure 1 
 
 ```{r}
-df <- fread("../plots/4PopSplit/A/q_Fig1_C1.txt")
+df <- fread("../plots/4PopSplit/A/q_Fig1.txt")
 df <- df [,3:ncol(df)]
 
 # Summarize data
 dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
 
 # Plot Data C1 no correction
-pl1 <- dfPlot %>% filter(config =="C1" & type == "NoCorrection") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "goldenrod2") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "goldenrod2") + ylim(-0.02, 0.22)
+pl1 <- dfPlot %>% filter(config =="C1" & type == "NoCorrection") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "goldenrod2") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "goldenrod2") + ylim(-0.02, 0.26)
 pl1
 #ggsave("~/Desktop/C1-NC.png", pl1, height = 3.5, width = 4.3)
 
 
 # Plot Data C2 \tidle{F}Gr
-pl2 <- dfPlot %>% filter(config =="C1" & type == "ID") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "darkgreen") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "darkgreen") + ylim(-0.02, 0.22)
+pl2 <- dfPlot %>% filter(config =="C1" & type == "ID") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "darkgreen") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "darkgreen") + ylim(-0.02, 0.25)
 pl2
 #ggsave("~/Desktop/C1-ID.png", pl2, height = 3.5, width = 4.3)
 ```
 
 ```{r}
-df <- fread("../plots/4PopSplit/A/q_Fig1_C2.txt")
-df <- df [,3:ncol(df)]
-
-# Summarize data
-dfPlot <- df %>% group_by(config, gwas_size, test_size, h2, ts, num_causal, env, L, type) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
-
-# Plot Data C1 no correction
-pl1 <- dfPlot %>% filter(config =="C2" & type == "NoCorrection") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "goldenrod2") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "goldenrod2") + ylim(-0.02, 0.22)
+# Plot Data C2 no correction
+pl1 <- dfPlot %>% filter(config =="C2" & type == "NoCorrection") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "goldenrod2") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "goldenrod2") + ylim(-0.02, 0.25)
 pl1
 #ggsave("~/Desktop/C2-NC.png", pl1, height = 3.5, width = 4.3)
 
 
 # Plot Data C2 \tidle{F}Gr
-pl2 <- dfPlot %>% filter(config =="C2" & type == "ID") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "darkgreen") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "darkgreen") + ylim(-0.02, 0.22)
+pl2 <- dfPlot %>% filter(config =="C2" & type == "ID") %>% ggplot(aes(x = env, y = avg_q)) + geom_point(size = 3, color = "darkgreen") + theme_classic(base_size = 16)  + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), plot.title = element_text(hjust = 0.5)) + labs(colour="Covariate")+ geom_hline(yintercept = 0, color = "red") + xlab(TeX("$\\Delta_{AB}$")) + ylab("Bias") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.005, color = "darkgreen") + ylim(-0.02, 0.25)
 pl2
 #ggsave("~/Desktop/C2-ID.png", pl2, height = 3.5, width = 4.3)
 ```

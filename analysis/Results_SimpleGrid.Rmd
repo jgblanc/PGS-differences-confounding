@@ -197,6 +197,21 @@ ggsave("~/Desktop/fig5.png", pl, height = 8)
 ## Supplemental Figures 
 
 ```{r}
+df <- fread("../plots/SimpleGrid/A/q_PS.txt")[,3:19]
+
+# Average Bias and false positive rate 
+dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`)) %>% filter(pheno == "PS" & test == "PS") 
+
+# Plot 
+ggplot(data = dfPlot, aes(x = type, y = avg_q)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) + facet_wrap(~L)
+```
+
+
+
+
+
+
+```{r}
 df <- fread("../plots/SimpleGrid/A/q_PCs.txt")[,3:19]
 
 # Average Bias and false positive rate 
