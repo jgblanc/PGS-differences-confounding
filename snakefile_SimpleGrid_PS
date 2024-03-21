@@ -3,7 +3,7 @@
 CONFIG=["C1"]
 GWAS_SIZE=["gp-2160"]
 TEST_SIZE=["tp-720"]
-PC=["10","35","100"]
+PC=["35"]
 CORRECTION = PC + ["FGr", "NoCorrection"]
 NUM_RESAMPLE = 1000
 HERITABILITY = ["h2-0.0"]
@@ -38,7 +38,7 @@ wildcard_constraints:
 
 def get_env(x):
   tmp = float(x.split("-")[1])
-  out = float(200 / (tmp * 0.005))
+  out = float(100 / (tmp * 0.005))
   return out
 
 def get_nc(x):
