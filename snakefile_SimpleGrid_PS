@@ -38,7 +38,7 @@ wildcard_constraints:
 
 def get_env(x):
   tmp = float(x.split("-")[1])
-  out = float(200 / (tmp * 0.01))
+  out = float(100 / (tmp * 0.01))
   return out
 
 def get_nc(x):
