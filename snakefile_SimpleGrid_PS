@@ -38,12 +38,12 @@ wildcard_constraints:
 
 def get_env(x):
   tmp = float(x.split("-")[1])
-  out = float(100 / (tmp * 0.003))
+  out = float(60 / (tmp * 0.015))
   return out
 
 def get_nc(x):
   tmp = x.split("-")[1]
-  out = int(float(tmp) * 0.003)
+  out = int(float(tmp) * 0.015)
   return out
 
 def get_params(x):
