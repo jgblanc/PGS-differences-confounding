@@ -27,10 +27,11 @@ for (j in 0:35) {
   # Select only individuals from a single deme
   dfTmp <- df %>% filter(POP == j)
   FGr <- dfTmp$FGr
+  
   FGrBar <- mean(FGr)
 
   # For each deme compute variance
-  sigma_j[j+1] <- sum(FGr - FGrBar) * (1/(nrow(dfTmp) - 1))
+  sigma_j[j+1] <- sum((FGr - FGrBar)^2) * (1/(n - 1))
 
 }
 
