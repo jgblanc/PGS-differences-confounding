@@ -16,9 +16,6 @@ out_file = args[2]
 # Read in FGr dataframe
 df <- fread(fgr_file)[,1:4]
 
-# Compute number of individuals per deme
-n <- nrow(df %>% filter(POP == 0))
-print(n)
 
 # Compute bootstrap samples
 sigma_j <- rep(0, 36)
@@ -27,7 +24,8 @@ for (j in 0:35) {
   # Select only individuals from a single deme
   dfTmp <- df %>% filter(POP == j)
   FGr <- dfTmp$FGr
-  
+  n <- nrow(dfTmp)
+
   FGrBar <- mean(FGr)
 
   # For each deme compute variance
