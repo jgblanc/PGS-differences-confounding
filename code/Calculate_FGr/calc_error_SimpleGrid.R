@@ -41,10 +41,10 @@ find_b2 <- function(x,y){
 #error35 <- find_b2(dfTilde$tildeFGr, dfCovar[,6:40])
 #error100 <- find_b2(dfTilde$tildeFGr, dfCovar[,6:105])
 
-errorFGr <- find_b2(dfCovar$FGr, dfCovar$FGr)
-error10 <- find_b2(dfCovar$FGr, dfCovar[,6:15])
-error35 <- find_b2(dfCovar$FGr, dfCovar[,6:40])
-error100 <- find_b2(dfCovar$FGr, dfCovar[,6:105])
+errorFGr <- find_b2(dfTilde$FGr, dfCovar$FGr)
+error10 <- find_b2(dfTilde$FGr, dfCovar[,6:15])
+error35 <- find_b2(dfTilde$FGr, dfCovar[,6:40])
+error100 <- find_b2(dfTilde$FGr, dfCovar[,6:105])
 
 
 
