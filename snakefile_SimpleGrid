@@ -22,9 +22,9 @@ TEST = ["PS"]
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = ["A1"]
-#for i in range(1,101):
-#  REP.append("A"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -64,7 +64,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/Calculate_FGr/SimpleGrid/{rep}/{gwas_size}/{test_size}/{test}/tildeError-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
+        expand("plots/SimpleGrid/A/tildeError_PS_v2.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
 
 
 
@@ -727,7 +727,7 @@ rule concat_tildeError_all:
   input:
       expand("plots/SimpleGrid/A/tildeError_{rep}.txt", rep = REP)
   output:
-    "plots/SimpleGrid/A/tildeError_PS.txt"
+    "plots/SimpleGrid/A/tildeError_PS_v2.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}

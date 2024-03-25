@@ -24,9 +24,11 @@ dfCovar <- fread(covar_file)
 # Find (1 - b2)
 find_b2 <- function(x,y){
 
+  y <- as.matrix(y)
+  x <- as.matrix(x)
   # Compute variance explained
-  mod <- lm(target ~ y)
-  r2 <- cor(target, fitted(mod))^2
+  mod <- lm(x ~ y)
+  r2 <- cor(x, fitted(mod))^2
   b2 = 1-r2
   return(b2)
 }
