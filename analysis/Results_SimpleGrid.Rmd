@@ -197,7 +197,7 @@ ggsave("~/Desktop/fig5.png", pl, height = 8)
 ## Supplemental Figures 
 
 ```{r}
-df <- fread("../plots/SimpleGrid/A/q_PS2.txt")[,3:19]
+df <- fread("../plots/SimpleGrid/A/q_PS.txt")[,3:19]
 
 # Average Bias and false positive rate 
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`)) %>% filter(pheno == "PS" & test == "PS") 
@@ -206,7 +206,44 @@ dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, ph
 ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean)) 
 ```
 
+```{r}
+df <- fread("../plots/SimpleGrid/A/tildeError_PS.txt")[,2:10]
 
+# Average Bias and false positive rate 
+dfPlot <- df %>% group_by(gwas_size, test_size, L, test) %>% summarize(count = n(), avgFGr = mean(FGr), avg10 = mean(`10`), avg35 = mean(`35`), avg100 = mean(`100`)) %>% select()
+
+dfMelt <- dfPlot %>% pivot_longer(col = c(avgFGr, avg10, avg35, avg100))
+
+# Plot 
+ggplot(data = dfMelt, aes(x = L, y = value, color = name)) + geom_point(size = 3) + geom_hline(yintercept = 0, color = "red") + ylab("Error")
+```
+```{r}
+x <- c(rep(-1, 10), rep(1, 10))
+y <- (x*0.5) + rnorm(20, 0, 0.01)
+z <- (y*0.5) + rnorm(20, 0, 1)
+
+
+mod1 <- lm(x ~ y)
+mod2 <- lm(x ~ z)
+r2_1 <- cor(x, fitted(mod1))^2
+r2_2 <- cor(x, fitted(mod2))^2
+
+1 - ((r2_1+r2_2)/var(x))
+
+dot.prod <- t(x)%*%z
+norm.x <- norm(x,type="2")
+norm.y <- norm(y,type="2")
+norm.z <- norm(z,type="2")
+one <- (dot.prod / (norm.x * norm.y))^2
+two <- (dot.prod / (norm.x * norm.z))^2
+
+1 - (one + two)
+
+mod <- lm(x ~ z)
+r2 <- cor(x, fitted(mod))^2
+
+((t(x) %*% y)^2) + ((t(x) %*% z)^2) / sum(x^2)
+```
 
 
 
