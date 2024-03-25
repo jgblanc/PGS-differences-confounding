@@ -117,6 +117,7 @@ phenoLat <- plot_pheno(df)
 df <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/DIAG/phenos_L-20000.txt")
 phenoDiag <- plot_pheno(df)
 
+getwd()
 
 # PS 
 df <- fread("../plots/SimpleGrid/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/phenos_L-20000.txt")
@@ -217,10 +218,22 @@ dfMelt <- dfPlot %>% pivot_longer(col = c(avgFGr, avg10, avg35, avg100))
 # Plot 
 ggplot(data = dfMelt, aes(x = L, y = value, color = name)) + geom_point(size = 3) + geom_hline(yintercept = 0, color = "red") + ylab("Error")
 ```
+
 ```{r}
-x <- c(rep(-1, 10), rep(1, 10))
-y <- (x*0.5) + rnorm(20, 0, 0.01)
-z <- (y*0.5) + rnorm(20, 0, 1)
+test <- fread("~/Downloads/LOCO_FGr-L-20000.txt")
+test2 <- fread("~/Downloads/genos.pop")
+colnames(test2) <- c("FID", "IID", "POP", "LAT", "LONG")
+df <- inner_join(test, test2)
+
+ggplot(df, aes(x = LONG, y = LAT, fill = FGr)) + geom_tile() + theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1), legend.position = "none") + scale_fill_gradient2(low = "palegoldenrod", high = "purple4") + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
+```
+
+
+
+```{r}
+x <- scale(c(rep(-1, 10), rep(1, 10)))
+y <- scale((x*0.5) + rnorm(20, 0, 0.01))
+z <- (x*0.5) + rnorm(20, 0, 0.01)
 
 
 mod1 <- lm(x ~ y)
@@ -239,8 +252,9 @@ two <- (dot.prod / (norm.x * norm.z))^2
 
 1 - (one + two)
 
-mod <- lm(x ~ z)
+mod <- lm(x ~ y+z)
 r2 <- cor(x, fitted(mod))^2
+r2
 
 ((t(x) %*% y)^2) + ((t(x) %*% z)^2) / sum(x^2)
 ```
