@@ -198,7 +198,7 @@ ggsave("~/Desktop/fig5.png", pl, height = 8)
 ## Supplemental Figures 
 
 ```{r}
-df <- fread("../plots/SimpleGrid/A/q_PS.txt")[,3:19]
+df <- fread("../plots/SimpleGrid/A/q_PS2.txt")[,3:19]
 
 # Average Bias and false positive rate 
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`)) %>% filter(pheno == "PS" & test == "PS") 
@@ -208,12 +208,14 @@ ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 3
 ```
 
 ```{r}
-df <- fread("../plots/SimpleGrid/A/tildeError_PS.txt")[,2:10]
+df <- fread("../plots/SimpleGrid/A/tildeError_PS_v2.txt")[,2:10]
 
 # Average Bias and false positive rate 
-dfPlot <- df %>% group_by(gwas_size, test_size, L, test) %>% summarize(count = n(), avgFGr = mean(FGr), avg10 = mean(`10`), avg35 = mean(`35`), avg100 = mean(`100`))
+#dfPlot <- df %>% group_by(gwas_size, test_size, L, test) %>% summarize(count = n(), avgFGr = mean(FGr), avg10 = mean(`10`), avg35 = mean(`35`), avg100 = mean(`100`))
+dfPlot <- df %>% filter(rep == "A1")
 
-dfMelt <- dfPlot %>% pivot_longer(col = c(avgFGr, avg10, avg35, avg100))
+#dfMelt <- dfPlot %>% pivot_longer(col = c(avgFGr, avg10, avg35, avg100))
+dfMelt <- dfPlot %>% pivot_longer(col = c(FGr, `10`, `35`, `100`))
 
 # Plot 
 ggplot(data = dfMelt, aes(x = L, y = value, color = name)) + geom_point(size = 3) + geom_hline(yintercept = 0, color = "red") + ylab("Error")
@@ -226,6 +228,8 @@ colnames(test2) <- c("FID", "IID", "POP", "LAT", "LONG")
 df <- inner_join(test, test2)
 
 ggplot(df, aes(x = LONG, y = LAT, fill = FGr)) + geom_tile() + theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1), legend.position = "none") + scale_fill_gradient2(low = "palegoldenrod", high = "purple4") + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
+
+ggplot(df, aes(x = LONG, y = LAT, fill = tildeFGr)) + geom_tile() + theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1), legend.position = "none") + scale_fill_gradient2(low = "palegoldenrod", high = "purple4") + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
 ```
 
 
