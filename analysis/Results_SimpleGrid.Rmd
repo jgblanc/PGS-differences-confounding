@@ -198,6 +198,7 @@ ggsave("~/Desktop/fig5.png", pl, height = 8)
 ## Supplemental Figures 
 
 ```{r}
+
 df <- fread("../plots/SimpleGrid/A/q_PS2.txt")[,3:19]
 
 # Average Bias and false positive rate 
@@ -211,11 +212,11 @@ ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 3
 df <- fread("../plots/SimpleGrid/A/tildeError_PS_v2.txt")[,2:10]
 
 # Average Bias and false positive rate 
-#dfPlot <- df %>% group_by(gwas_size, test_size, L, test) %>% summarize(count = n(), avgFGr = mean(FGr), avg10 = mean(`10`), avg35 = mean(`35`), avg100 = mean(`100`))
-dfPlot <- df %>% filter(rep == "A1")
+dfPlot <- df %>% group_by(gwas_size, test_size, L, test) %>% summarize(count = n(), avgFGr = mean(FGr), avg10 = mean(`10`), avg35 = mean(`35`), avg100 = mean(`100`))
+#dfPlot <- df %>% filter(rep == "A1")
 
-#dfMelt <- dfPlot %>% pivot_longer(col = c(avgFGr, avg10, avg35, avg100))
-dfMelt <- dfPlot %>% pivot_longer(col = c(FGr, `10`, `35`, `100`))
+dfMelt <- dfPlot %>% pivot_longer(col = c(avgFGr, avg10, avg35, avg100))
+#dfMelt <- dfPlot %>% pivot_longer(col = c(FGr, `10`, `35`, `100`))
 
 # Plot 
 ggplot(data = dfMelt, aes(x = L, y = value, color = name)) + geom_point(size = 3) + geom_hline(yintercept = 0, color = "red") + ylab("Error")
@@ -257,6 +258,9 @@ two <- (dot.prod / (norm.x * norm.z))^2
 1 - (one + two)
 
 mod <- lm(x ~ y+z)
+summary(mod)
+
+
 r2 <- cor(x, fitted(mod))^2
 r2
 

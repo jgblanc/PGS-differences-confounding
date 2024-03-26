@@ -20,9 +20,22 @@ dfTilde <- fread(tFGr_file)
 # Read in covar file
 dfCovar <- fread(covar_file)
 
+# Find (1 - b2)
+find_b2_FGr <- function(x,y){
+
+  y <- as.matrix(y)
+  x <- as.matrix(x)
+
+  # Compute variance explained
+  r <- cov(x,y) / sqrt(var(x), var(y))
+  r2 <- r^2
+
+  error = 1-r2
+  return(error)
+}
 
 # Find (1 - b2)
-find_b2 <- function(x,y){
+find_b2_PCs <- function(x,y){
 
   y <- as.matrix(y)
   x <- as.matrix(x)

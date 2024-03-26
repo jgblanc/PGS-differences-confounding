@@ -1,14 +1,14 @@
 ## Snakefile to run 4 Pop Simulations
 
 CONFIG=["C1"]
-GWAS_SIZE=["gp-2160"]
-TEST_SIZE=["tp-720"]
-PC=["10","35","100"]
+GWAS_SIZE=["gp-1440"]
+TEST_SIZE=["tp-1440"]
+PC=["10","35"]
 CORRECTION = PC + ["FGr", "NoCorrection"]
-NUM_RESAMPLE = 1000
+NUM_RESAMPLE = 10
 HERITABILITY = ["h2-0.0"]
-PHENO = ["PS"]
-TEST = ["PS"]
+PHENO = ["PS", "LAT", "DIAG"]
+TEST = ["PS", "LAT"]
 
 
 
@@ -22,14 +22,14 @@ TEST = ["PS"]
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = []
-for i in range(1,101):
-  REP.append("A"+str(i))
+REP = ["A1"]
+#for i in range(1,101):
+#  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000"]
-#NSNP = ["L-20000"]
+#NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000"]
+NSNP = ["L-10000"]
 ENV = ["env_0.2"]
 NUM_CAUSAL = ["c-300"]
 
@@ -64,7 +64,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/SimpleGrid/A/tildeError_PS_v3.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
+        expand("plots/SimpleGrid/A/EqualSS/q.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
 
 
 
@@ -659,7 +659,7 @@ rule concat_Q_all:
   input:
       expand("plots/SimpleGrid/A/q_{rep}.txt", rep = REP)
   output:
-    qx="plots/SimpleGrid/A/q_PCs.txt"
+    qx="plots/SimpleGrid/A/EqualSS/q.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
