@@ -22,9 +22,9 @@ TEST = ["PS", "LAT"]
 #NUM_CAUSAL = ["c-50"]
 
 # Big
-REP = ["A1"]
-#for i in range(1,101):
-#  REP.append("A"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
