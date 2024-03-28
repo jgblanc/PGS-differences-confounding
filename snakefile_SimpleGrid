@@ -7,8 +7,8 @@ PC=["10"]
 CORRECTION = PC + ["FGr", "NoCorrection"]
 NUM_RESAMPLE = 2
 HERITABILITY = ["h2-0.0"]
-PHENO = [ "DIAG"]
-TEST = ["LAT"]
+PHENO = [ "DIAG", "PS", "LAT"]
+TEST = ["LAT", "PS"]
 
 
 

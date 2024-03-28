@@ -213,8 +213,12 @@ df <- fread("../plots/SimpleGrid/A/q_PS2.txt")[,3:19]
 # Average Bias and false positive rate 
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`)) %>% filter(pheno == "PS" & test == "PS") 
 
+# Order type
+
+
 # Plot 
-ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean)) 
+ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 2.5, position=position_dodge(width=300)) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean),  width = 500, position=position_dodge(width=300)) +  
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) + ylab("Bias")
 ```
 
 ```{r}
@@ -244,37 +248,6 @@ ggplot(df, aes(x = LONG, y = LAT, fill = tildeFGr)) + geom_tile() + theme_classi
 
 
 
-```{r}
-x <- scale(c(rep(-1, 10), rep(1, 10)))
-y <- scale((x*0.5) + rnorm(20, 0, 0.01))
-z <- (x*0.5) + rnorm(20, 0, 0.01)
-
-
-mod1 <- lm(x ~ y)
-mod2 <- lm(x ~ z)
-r2_1 <- cor(x, fitted(mod1))^2
-r2_2 <- cor(x, fitted(mod2))^2
-
-1 - ((r2_1+r2_2)/var(x))
-
-dot.prod <- t(x)%*%z
-norm.x <- norm(x,type="2")
-norm.y <- norm(y,type="2")
-norm.z <- norm(z,type="2")
-one <- (dot.prod / (norm.x * norm.y))^2
-two <- (dot.prod / (norm.x * norm.z))^2
-
-1 - (one + two)
-
-mod <- lm(x ~ y+z)
-summary(mod)
-
-
-r2 <- cor(x, fitted(mod))^2
-r2
-
-((t(x) %*% y)^2) + ((t(x) %*% z)^2) / sum(x^2)
-```
 
 
 
