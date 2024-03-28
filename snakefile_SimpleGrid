@@ -7,8 +7,8 @@ PC=["10","35"]
 CORRECTION = PC + ["FGr", "NoCorrection"]
 NUM_RESAMPLE = 10
 HERITABILITY = ["h2-0.0"]
-PHENO = [ "DIAG"]
-TEST = ["LAT"]
+PHENO = [ "DIAG", "LAT", "PS"]
+TEST = ["LAT", "PS"]
 
 
 
@@ -29,7 +29,7 @@ CHR = []
 for i in range(1,501):
   CHR.append(str(i))
 #NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000"]
-NSNP = ["L-10000"]
+NSNP = ["L-10000", "L-20000"]
 ENV = ["env_0.3"]
 NUM_CAUSAL = ["c-300"]
 
