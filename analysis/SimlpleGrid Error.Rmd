@@ -11,186 +11,10 @@ library(tidyverse)
 library(data.table)
 ```
 
-
 ```{r}
-# Read in all covar files
-rep_files <- list()
-for (rep in 1:100) {
- covar <- fread(paste0("../data/SimpleGrid_Error/A", rep, "/covars-L-20000.txt")) 
- rep_files[[rep]] <- covar
-}
-```
-
-## Code to compute the average Error accross rep in FGr
-
-```{r}
-## Compute variance within demes 
-avg_sigma_per_rep <- rep(0, 100)
-for (r in 1:100) {
-  
-  print(r)
-  covar <- rep_files[[r]]  
-  
-  # Calc variance per deme
-  sigma_j <- rep(0, 36)
-  for (j in 0:35) {
-
-    # Select only individuals from a single deme
-    dfTmp <- covar %>% filter(POP == j)
-    FGr <- dfTmp$FGr
-    n <- nrow(dfTmp)
-  
-    # Compute mean
-    FGrBar <- mean(FGr)
-
-    # For each deme compute sample variance
-    sigma_j[j+1] <- sum((FGr - FGrBar)^2) * (1/(n - 1))
-
-  }
-  # Take the average variance within demes
-  avg_sigma_per_rep[r] <- mean(sigma_j)
-}  
-
-## Compute variance of means
-
-# Find mean per deme across reps
-deme_means <- matrix(NA, nrow = 36, ncol = 100)
-for (r in 1:100) {
-  
-  # Find mean FGr per deme per replicate
-  tmp <- rep_files[[r]]
-  tmp_sum <- tmp %>% group_by(POP) %>% summarise(meanDeme = mean(FGr)) 
-  deme_means[, r] <- tmp_sum$meanDeme
-  
-}
-meanDeme <- rowMeans(deme_means)
-
-# Compute variance of deme means across replcates
-deme_vars <- matrix(NA, nrow = 36, ncol = 100)
-for (r in 1:100) {
-  
-  tmp <- rep_files[[r]]
-  tmp_sum <- tmp %>% group_by(POP) %>% summarise(meanDeme = mean(FGr)) 
-  deme_vars[,r] <-  (tmp_sum$meanDeme - meanDeme)^2
-  
-}
-variance_deme_means <- rowSums(deme_vars) * (1/35) # check 35 or 36
-
-## Compute emprical variance of target vector
-empricalVar <- rep(0,100)
-for (r in 1:100) {
-  tmp <- rep_files[[r]]
-  empricalVar[r] <- var(tmp$FGr)
-}
-
-
-## Compute Error per replicate
-Error <- rep(0,100)
-for (r in 1:100) {
-  Error[r] <- (mean(avg_sigma_per_rep) + mean(variance_deme_means)) / empricalVar[r]
-}
-FGrError <- mean(Error)
-```
-
-# PCs 
-
-```{r}
-covar1 <- rep_files[[1]]
-covar2 <- rep_files[[2]]
-
-cor_mat <- cor(covar1[,6:40], covar2[,6:40])
-abs(cor_mat)[35,]
-plot(covar1$PC35, covar2$PC32)
-
-```
-
-
-```{r}
-## Compute variance within demes 
-avg_sigma_per_rep <- matrix(NA, nrow = 35, ncol = 100)
-for (pc in 1:35) {
-  
-  print(paste0("PC ", pc))
-  
-  for (r in 1:100) {
-  
-    covar <- rep_files[[r]]  
-  
-    # Calc variance per deme
-    sigma_j <- rep(0, 36)
-    for (j in 0:35) {
-
-      # Select only individuals from a single deme
-      dfTmp <- covar %>% filter(POP == j)
-      colName <- paste0("PC",pc)
-      hatVec <- as.matrix(dfTmp[,..colName])
-      n <- nrow(dfTmp)
-  
-      # Compute mean
-      hatVecBar <- mean(hatVec)
-
-      # For each deme compute sample variance
-      sigma_j[j+1] <- sum((hatVec - hatVecBar)^2) * (1/(n - 1))
-
-    }
-    # Take the average variance within demes
-    avg_sigma_per_rep[pc, r] <- mean(sigma_j)
-  }
-}  
-```
-
-```{r}
-## Compute emprical variance of target vector
-empricalVar <- matrix(NA, nrow=35, ncol=100) 
-for (pc in 1:35) {
-  for (r in 1:100) {
-    tmp <- rep_files[[r]]
-    colName <- paste0("PC",pc)
-    hatVec <- as.matrix(tmp[,..colName])
-    empricalVar[pc, r] <- var(hatVec)[1,1]
-  }
-}
-
-## Compute Error 
-Error_PC <- matrix(NA, nrow=35, ncol=100) 
-for (pc in 1:35) {
- for (r in 1:100) {
-    Error_PC[pc, r] <- (rowMeans(avg_sigma_per_rep)[pc]) / empricalVar[r]
-  }
-}
-rowMeans(Error_PC)
-```
-
-```{r}
-dfOut <- as.data.frame(c(FGrError, rowMeans(Error_PC)))
-colnames(dfOut) <- "Error"
-dfOut$Type <- c("FGr", paste0("PC", seq(1,35)))
-
-fwrite(dfOut, "../data/SimpleGrid_Error/L-20000_Error.txt", col.names = T, row.names = F, quote = F)
-```
-
-```{r}
-dfFGr <- dfOut %>% filter(Type == "FGr")
-dfPC <- dfOut[2:36,]
-dfPC$num <- seq(1, 35)
-
-
-p2 <- ggplot(dfPC, aes(x = num, y = Error)) + geom_point() + ylim(0, 1) + geom_point(color = "red4", size=3) + ylim(0,1) +
-  theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + xlab("Principal Components") + geom_hline(yintercept = 0, color = "red")
-p2
-
-p1 <-ggplot(dfFGr, aes(x = Type, y = Error)) + geom_point(color = "navy", size=3) + ylim(0,1) +
-  theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_blank()) + xlab(TeX("$\\hat{F}_{Gr}$")) + geom_hline(yintercept = 0, color = "red") + ylab("Lower Bound Error")
-
-
-pl <- egg::ggarrange(p1, p2, nrow=1, widths = c(0.25, 0.75))
-ggsave("~/Desktop/Error.png", pl)
-```
-
-```{r}
-x <- seq(8000, 20000, 2000)
+x <- seq(4000, 20000, 2000)
 df <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/LAT/Error-L-6000.txt")
-df$L <- 6000
+df$L <- 2000
 df$num <- c(NA, seq(1, 100))
 
 for (i in x) {
@@ -208,9 +32,9 @@ dfPC <- df %>% filter(Type != "FGr")
 ```
 
 ```{r}
-x <- seq(8000, 20000, 2000)
+x <- seq(4000, 20000, 2000)
 df2 <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/PS/Error-L-6000.txt")
-df2$L <- 6000
+df2$L <- 2000
 df2$num <- c(NA, seq(1, 100))
 
 for (i in x) {
@@ -236,6 +60,7 @@ p1 <- ggplot(dfFGr, aes(x = Type, y = Error, color = L)) + geom_point(size=3) + 
 
 p2 <- ggplot(dfPC, aes(x = num, y = Error, color = L)) + geom_point() + ylim(0, 1.05) + geom_point(size=3) + 
   theme_bw(base_size = 14) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black"), legend.position = "none", panel.grid.minor = element_line(linetype = 'dashed')) + xlab("Principal Components") + geom_hline(yintercept = 0, color = "red") + geom_vline(xintercept = 35, color = "black", linewidth=1.2, linetype = "longdash") + ylab("Error Lower Bound") + scale_color_continuous(low = "red4",high = "red1")
+
 pl <- egg::ggarrange(p1, p2, nrow=1, widths = c(0.25, 0.75))
 ```
 
