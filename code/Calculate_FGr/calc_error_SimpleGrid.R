@@ -122,22 +122,12 @@ for (pc in 1:pc_num) {
   }
 }
 
-## Compute emprical variance of target vector
-empricalVar <- matrix(NA, nrow=pc_num, ncol=100)
-for (pc in 1:pc_num) {
-  for (r in 1:100) {
-    tmp <- rep_files[[r]]
-    colName <- paste0("PC",pc)
-    hatVec <- as.matrix(tmp[,..colName])
-    empricalVar[pc, r] <- var(hatVec)[1,1]
-  }
-}
 
 ## Compute Error
 Error_PC <- matrix(NA, nrow=pc_num, ncol=100)
 for (pc in 1:pc_num) {
   for (r in 1:100) {
-    Error_PC[pc, r] <- (rowMeans(avg_sigma_per_rep)[pc]) / empricalVar[r]
+    Error_PC[pc, r] <- (rowMeans(avg_sigma_per_rep)[pc]) * (1440 -1)
   }
 }
 rowMeans(Error_PC)

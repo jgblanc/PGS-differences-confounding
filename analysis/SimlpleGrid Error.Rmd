@@ -187,4 +187,67 @@ pl <- egg::ggarrange(p1, p2, nrow=1, widths = c(0.25, 0.75))
 ggsave("~/Desktop/Error.png", pl)
 ```
 
+```{r}
+x <- seq(8000, 20000, 2000)
+df <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/LAT/Error-L-6000.txt")
+df$L <- 6000
+df$num <- c(NA, seq(1, 100))
+
+for (i in x) {
+  
+  tmp <- fread(paste0("../plots/SimpleGrid/A/gp-1440/tp-1440/LAT/Error-L-", i, ".txt"))
+  tmp$L <- i
+  tmp$num <- c(NA, seq(1, 100))
+  df <- rbind(df,tmp)
+  
+  
+}
+
+dfFGr <- df %>% filter(Type == "FGr")
+dfPC <- df %>% filter(Type != "FGr")
+```
+
+```{r}
+x <- seq(8000, 20000, 2000)
+df2 <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/PS/Error-L-6000.txt")
+df2$L <- 6000
+df2$num <- c(NA, seq(1, 100))
+
+for (i in x) {
+  
+  tmp <- fread(paste0("../plots/SimpleGrid/A/gp-1440/tp-1440/PS/Error-L-", i, ".txt"))
+  tmp$L <- i
+  tmp$num <- c(NA, seq(1, 100))
+  df2 <- rbind(df2,tmp)
+  
+  
+}
+
+dfFGr2 <- df2 %>% filter(Type == "FGr")
+dfFGr$Type <-"Latitude"
+dfFGr2$Type  <- "Single Deme"
+dfFGr <- rbind(dfFGr, dfFGr2)
+```
+
+
+
+```{r}
+p1 <- ggplot(dfFGr, aes(x = Type, y = Error, color = L)) + geom_point(size=3) + ylim(0,1) +
+  theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), legend.position = "none") + xlab(TeX("$\\hat{F}_{Gr}$")) + geom_hline(yintercept = 0, color = "red") + ylab("Lower Bound Error") + scale_color_gradient()
+```
+
+```{r}
+ggplot(dfPC, aes(x = num, y = Error, color = L)) + geom_point() + ylim(0, 1.05) + geom_point(size=3) + 
+  theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), axis.title.y = element_blank()) + xlab("Principal Components") + geom_hline(yintercept = 0, color = "red") + geom_vline(xintercept = 35, color = "grey50")
+```
+
+```{r}
+pl <- egg::ggarrange(p1, p2, nrow=1, widths = c(0.25, 0.75))
+ggsave("~/Desktop/Error.png", pl)
+```
+
+
+
+
+
 
