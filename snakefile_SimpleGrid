@@ -357,7 +357,7 @@ rule GWAS_PCA:
 	      --keep {input.gwas} \
 	      --extract {input.snps} \
 	      --out {params.out_prefix} \
-		    --pca 2159
+		    --pca 1439
 		    """
 
 ################
