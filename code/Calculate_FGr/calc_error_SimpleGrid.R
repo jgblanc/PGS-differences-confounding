@@ -8,8 +8,9 @@ suppressWarnings(suppressMessages({
   library(dplyr)
 }))
 
-pc_num <- 2
+pc_num <- 100
 outfile = args[1]
+print(length(args))
 
 ### Read in all covar files ###
 rep_files <- list()
@@ -146,8 +147,7 @@ rowMeans(Error_PC)
 dfOut <- as.data.frame(c(FGrError, rowMeans(Error_PC)))
 colnames(dfOut) <- "Error"
 dfOut$Type <- c("FGr", paste0("PC", seq(1,pc_num)))
-
-fwrite(dfOut, "../data/SimpleGrid_Error/L-20000_Error.txt", col.names = T, row.names = F, quote = F)
+fwrite(dfOut,outfile, col.names = T, row.names = F, quote = F)
 
 
 
