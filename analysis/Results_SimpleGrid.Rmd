@@ -118,17 +118,17 @@ plot_pheno <- function(df) {
 }
 
 # Lat
-df <- fread("../plots/SimpleGrid/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/phenos_L-20000.txt")
+df <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/phenos_L-20000.txt")
 phenoLat <- plot_pheno(df)
 phenoLat
 
 # Diag
-df <- fread("../plots/SimpleGrid/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/phenos_L-20000.txt")
+df <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/phenos_L-20000.txt")
 phenoDiag <- plot_pheno(df)
 phenoDiag
 
 # PS 
-df <- fread("../plots/SimpleGrid/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/phenos_L-20000.txt")
+df <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/phenos_L-20000.txt")
 phenoPS <- plot_pheno(df)
 phenoPS
 ```
