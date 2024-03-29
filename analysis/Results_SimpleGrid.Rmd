@@ -214,11 +214,16 @@ df <- fread("../plots/SimpleGrid/A/q_PS2.txt")[,3:19]
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`)) %>% filter(pheno == "PS" & test == "PS") 
 
 # Order type
-
+dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection","10", "35", "FGr"))
+dfPlot$TEST <- "Single Deme"
 
 # Plot 
-ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 2.5, position=position_dodge(width=300)) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean),  width = 500, position=position_dodge(width=300)) +  
-  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed')) + ylab("Bias")
+pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 2.5, position=position_dodge(width=500)) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean),  width = 900, position=position_dodge(width=500)) +  
+  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed'), strip.background =element_rect(fill="white")) + ylab("Bias") +
+  scale_color_manual(values = c("goldenrod2", "red4", "darkorange3", "navy"), labels = c("No Correction","10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST) + scale_x_continuous(breaks = seq(2000, 200000, by = 2000))
+pl
+
+ggsave("~/Desktop/PS_Bias.png", pl, width = 7, height = 5)
 ```
 
 ```{r}
