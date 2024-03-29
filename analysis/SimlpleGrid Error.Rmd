@@ -99,7 +99,8 @@ covar1 <- rep_files[[1]]
 covar2 <- rep_files[[2]]
 
 cor_mat <- cor(covar1[,6:40], covar2[,6:40])
-abs(cor_mat)
+abs(cor_mat)[35,]
+plot(covar1$PC35, covar2$PC32)
 
 ```
 
@@ -174,7 +175,16 @@ dfPC <- dfOut[2:36,]
 dfPC$num <- seq(1, 35)
 
 
-ggplot(dfPC, aes(x = num, y = Error)) + geom_point() + 
+p2 <- ggplot(dfPC, aes(x = num, y = Error)) + geom_point() + ylim(0, 1) + geom_point(color = "red4", size=3) + ylim(0,1) +
+  theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + xlab("Principal Components") + geom_hline(yintercept = 0, color = "red")
+p2
+
+p1 <-ggplot(dfFGr, aes(x = Type, y = Error)) + geom_point(color = "navy", size=3) + ylim(0,1) +
+  theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_blank()) + xlab(TeX("$\\hat{F}_{Gr}$")) + geom_hline(yintercept = 0, color = "red") + ylab("Lower Bound Error")
+
+
+pl <- egg::ggarrange(p1, p2, nrow=1, widths = c(0.25, 0.75))
+ggsave("~/Desktop/Error.png", pl)
 ```
 
 
