@@ -62,8 +62,18 @@ p2 <- ggplot(dfPC, aes(x = num, y = Error, color = L)) + geom_point() + ylim(0, 
   theme_bw(base_size = 14) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black"), legend.position = "none", panel.grid.minor = element_line(linetype = 'dashed')) + xlab("Principal Components") + geom_hline(yintercept = 0, color = "red") + geom_vline(xintercept = 35, color = "black", linewidth=1.2, linetype = "longdash") + ylab("Error Lower Bound") + scale_color_continuous(low = "red4",high = "red1")
 
 pl <- egg::ggarrange(p1, p2, nrow=1, widths = c(0.25, 0.75))
+ggsave("~/Desktop/error_grids.png", pl, width = 10, height = 5)
 ```
 
+```{r}
+p1 <- ggplot(dfFGr, aes(x = Type, y = Error, color = L)) + geom_point(size=3) + ylim(0,1.05) +
+  theme_bw(base_size = 14) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black"),  panel.grid.minor = element_line(linetype = 'dashed')) + xlab(TeX("$\\hat{F}_{Gr}$")) + geom_hline(yintercept = 0, color = "red") + ylab("Error") + scale_color_gradient(low = "navy", high = "cadetblue1", breaks = c(2000, 8000, 14000, 20000))
+
+p2 <- ggplot(dfPC, aes(x = num, y = Error, color = L)) + geom_point() + ylim(0, 1.05) + geom_point(size=3) + 
+  theme_bw(base_size = 14) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black"), panel.grid.minor = element_line(linetype = 'dashed')) + xlab("Principal Components") + geom_hline(yintercept = 0, color = "red") + geom_vline(xintercept = 35, color = "black", linewidth=1.2, linetype = "longdash") + ylab("Error Lower Bound") + scale_color_continuous(low = "red4",high = "red1",breaks = c(2000, 8000, 14000, 20000))
+p2
+ggsave("~/Desktop/p1_legend.png", p1, width = 10, height = 5)
+```
 
 
 

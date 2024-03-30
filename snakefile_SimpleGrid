@@ -64,8 +64,8 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{test}/Error-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
-
+        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/confounder_varEx-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
+        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{test}/FGr_varEx-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
@@ -692,25 +692,4 @@ rule concat_error_all:
     rm {input}
     """
 
-### Concat Error Compared to \tilde{F}_Gr ###
 
-rule concat_tildeError_rep:
-  input:
-      expand("output/Calculate_FGr/SimpleGrid/{{rep}}/{gwas_size}/{test_size}/{test}/tildeError-{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, env=ENV, pheno=PHENO, test=TEST)
-  output:
-    "plots/SimpleGrid/A/tildeError_{rep}.txt"
-  shell:
-    """
-    Rscript code/plot/concat_tildeError_SimpleGrid.R {input} {output}
-    """
-
-rule concat_tildeError_all:
-  input:
-      expand("plots/SimpleGrid/A/tildeError_{rep}.txt", rep = REP)
-  output:
-    "plots/SimpleGrid/A/tildeError_PS_v3.txt"
-  shell:
-    """
-    Rscript code/plot/concat_all.R {input} {output}
-    rm {input}
-    """
