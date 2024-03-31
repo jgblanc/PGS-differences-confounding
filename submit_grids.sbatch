@@ -18,7 +18,7 @@ module load samtools
 
 echo "SLURM_JOBID="$SLURM_JOBID
 cat snakefile_SimpleGrid
-snakemake -s snakefile_SimpleGrid_L --unlock
+snakemake -s snakefile_SimpleGrid --unlock
 #snakemake -np -s snakefile_SimpleGrid 
-snakemake --profile cluster-setup/ -s snakefile_SimpleGrid_L 
+snakemake --profile cluster-setup/ -s snakefile_SimpleGrid 
 
