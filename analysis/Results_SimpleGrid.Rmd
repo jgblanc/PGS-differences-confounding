@@ -150,7 +150,7 @@ ggsave("~/Desktop/fig4.png", out, height = 10, width = 12)
 ```{r}
 make_confounder_plot <- function(df, lab_title) {
   
-  pl  <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "purple4", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ scale_alpha_manual(values = c(0.25, 1), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) +theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold', size = 12)) + ggtitle(lab_title)
+  pl  <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "purple4", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ scale_alpha_manual(values = c(0.25, 1), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) +theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold', size = 12)) + ggtitle(lab_title) + geom_vline(xintercept = 35, color = "black", linetype = "longdash", size = 1)
   #+ geom_point(size = 1, aes( alpha = color)) 
   
   return(pl)
@@ -158,7 +158,7 @@ make_confounder_plot <- function(df, lab_title) {
 
 make_FGr_plot <- function(df, lab_title) {
   
-  pl  <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "navy", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ scale_alpha_manual(values = c(0.25, 1), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) +theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold', size = 12)) + ggtitle(lab_title)
+  pl  <- ggplot(data = df, aes(x = PC, y = avg_r2)) + geom_bar(stat = "identity", fill = "navy", aes( alpha = color)) + ylab(TeX("$R^2$")) + xlab("Cumulative PCs") + theme_classic(base_size = 14) + ylim(0,1)+ scale_alpha_manual(values = c(0.25, 1), guide="none") + geom_hline(yintercept = 1, color = "red", linetype = "longdash", size = 1.5) +theme( plot.title=element_text(hjust = 0.9,vjust=-40, face='bold', size = 12)) + ggtitle(lab_title) + geom_vline(xintercept = 35, color = "black", linetype = "longdash", size = 1)
   #+ geom_point(size = 1, aes( alpha = color)) 
   
   return(pl)
@@ -168,43 +168,56 @@ make_FGr_plot <- function(df, lab_title) {
 
 
 ```{r}
-dfLat <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/LAT/confounder_varEx-L-20000.txt")[,2:6]
+dfLat <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/confounder_varEx-L-20000.txt")[,2:6]
 colnames(dfLat)[1] <- "PC"
-dfLat$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+dfLat$color <-c(rep("TRUE", 10), rep("FALSE", 1429))
+dfLat <- dfLat[1:100,]
 
-dfDiag <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/Diag/confounder_varEx-L-20000.txt")[,2:6]
+
+dfDiag <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/confounder_varEx-L-20000.txt")[,2:6]
 colnames(dfDiag)[1] <- "PC"
-dfDiag$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+dfDiag$color <-c(rep("TRUE", 10), rep("FALSE", 1429))
+dfDiag <- dfDiag[1:100,]
 
-dfPS <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/env_0.2/PS/confounder_varEx-L-20000.txt")[,2:6]
+dfPS <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/confounder_varEx-L-20000.txt")[,2:6]
 colnames(dfPS)[1] <- "PC"
-dfPS$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+dfPS$color <-c(rep("TRUE", 10), rep("FALSE", 1429))
+dfPS <- dfPS[1:100,]
 
 cLat <- make_confounder_plot(dfLat, "Latitude")
 cDiag <- make_confounder_plot(dfDiag, "Diagonal")
 cPS <- make_confounder_plot(dfPS, "Single Deme")
+
+cLat
+cDiag
+cPS
 ```
 
 
 ```{r}
-dfLat <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/LAT/FGr_varEx-L-20000.txt")[,2:6]
+dfLat <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/LAT/FGr_varEx-L-20000.txt")[,2:6]
 colnames(dfLat)[1] <- "PC"
-dfLat$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+dfLat$color <-c(rep("TRUE", 10), rep("FALSE", 1429))
+dfLat <- dfLat[1:100,]
 
-dfPS <- fread("../plots/SimpleGrid/A/gp-2160/tp-720/h2-0.0/c-300/PS/FGr_varEx-L-20000.txt")[,2:6]
+dfPS <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/PS/FGr_varEx-L-20000.txt")[,2:6]
 colnames(dfPS)[1] <- "PC"
-dfPS$color <-c(rep("TRUE", 10), rep("FALSE", 2149))
+dfPS$color <-c(rep("TRUE", 10), rep("FALSE", 1429))
+dfPS <- dfPS[1:100,]
 
 fLat <- make_FGr_plot(dfLat, "Latitude")
 fPS <- make_FGr_plot(dfPS, "Single Deme")
+fLat
+fPS
 ```
 
 ```{r}
 pl <- ggarrange(cLat,  fLat, cDiag, fLat, cPS, fPS, ncol=2, nrow =3)
-ggsave("~/Desktop/fig5.png", pl, height = 8)
+pl
+ggsave("~/Desktop/R2.png", pl, height = 8)
 ```
 
-## Supplemental Figures 
+## Figure 5 
 
 ```{r}
 
@@ -224,7 +237,7 @@ pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(si
   scale_color_manual(values = c("goldenrod2", "red4", "darkorange3", "navy"), labels = c("No Correction","10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST) 
 pl
 
-ggsave("~/Desktop/PS_Bias.png", pl, width = 7, height = 4)
+#ggsave("~/Desktop/PS_Bias.png", pl, width = 7, height = 4)
 ```
 
 
@@ -245,7 +258,7 @@ pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(si
   scale_color_manual(values = c("goldenrod2", "red4", "darkorange3", "navy"), labels = c("No Correction","10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST)
 pl
 
-ggsave("~/Desktop/LAT_Bias.png", pl, width = 7, height = 4)
+#ggsave("~/Desktop/LAT_Bias.png", pl, width = 7, height = 4)
 ```
 
 

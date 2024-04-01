@@ -45,7 +45,7 @@ for (r in 1:100) {
 
   }
   # Take the average variance within demes
-  avg_sigma_per_rep[r] <- mean(sigma_j)
+  avg_sigma_per_rep[r] <- sum(sigma_j) * (1/35)
 }
 
 ## Compute variance of means
@@ -84,7 +84,7 @@ for (r in 1:100) {
 ## Compute Error per replicate
 Error <- rep(0,100)
 for (r in 1:100) {
-  Error[r] <- (mean(avg_sigma_per_rep) + mean(variance_deme_means)) / empricalVar[r]
+  Error[r] <- ((sum(avg_sigma_per_rep) * (1/99)) + mean(variance_deme_means)) / empricalVar[r]
 }
 FGrError <- mean(Error)
 

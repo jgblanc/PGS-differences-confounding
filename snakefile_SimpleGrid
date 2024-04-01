@@ -64,8 +64,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/confounder_varEx-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION),
-        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{test}/FGr_varEx-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{test}/FGr_{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
@@ -334,6 +333,18 @@ rule compute_FGr:
         """
         Rscript code/Calculate_FGr/calc_FGr.R {params.plink_prefix} {input.tvec} {input.test} {input.gwas} {input.snps} {params.out_prefix} {output}
  		    """
+
+rule summarize_FGr:
+  input:
+    FGr=expand("output/Calculate_FGr/SimpleGrid/{rep}/{{gwas_size}}/{{test_size}}/{{test}}/FGr-{{nsnp}}.txt", rep=REP),
+    pops="output/Simulate_Genotypes/SimpleGrid/A1/genos.pop"
+  output:
+    "plots/SimpleGrid/A/{gwas_size}/{test_size}/{test}/FGr_{nsnp}.txt"
+  shell:
+    """
+    Rscript code/Calculate_FGr/summarize_FGr_SimpleGrid.R {output} {input.pops} {input.prs}
+    rm {input.prs}
+    """
 
 #################
 ### GWAS PCA ####
