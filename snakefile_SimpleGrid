@@ -342,8 +342,7 @@ rule summarize_FGr:
     "plots/SimpleGrid/A/{gwas_size}/{test_size}/{test}/FGr_{nsnp}.txt"
   shell:
     """
-    Rscript code/Calculate_FGr/summarize_FGr_SimpleGrid.R {output} {input.pops} {input.prs}
-    rm {input.prs}
+    Rscript code/Calculate_FGr/summarize_FGr_SimpleGrid.R {output} {input.pops} {input.FGr}
     """
 
 #################
