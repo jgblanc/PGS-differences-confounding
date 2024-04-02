@@ -45,7 +45,7 @@ for (r in 1:100) {
 
   }
   # Take the average variance within demes
-  avg_sigma_per_rep[r] <- sum(sigma_j) * (1/35)
+  avg_sigma_per_rep[r] <- mean(sigma_j)
 }
 
 ## Compute variance of means
@@ -71,7 +71,7 @@ for (r in 1:100) {
   deme_vars[,r] <-  (tmp_sum$meanDeme - meanDeme)^2
 
 }
-variance_deme_means <- rowSums(deme_vars) * (1/35) # check 35 or 36
+variance_deme_means <- rowSums(deme_vars) * (1/99)
 
 ## Compute emprical variance of target vector
 empricalVar <- rep(0,100)
@@ -82,11 +82,11 @@ for (r in 1:100) {
 
 
 ## Compute Error per replicate
-Error <- rep(0,100)
-for (r in 1:100) {
-  Error[r] <- ((sum(avg_sigma_per_rep) * (1/99)) + mean(variance_deme_means)) / empricalVar[r]
-}
-FGrError <- mean(Error)
+#Error <- rep(0,100)
+#for (r in 1:100) {
+#  Error[r] <- (mean(avg_sigma_per_rep) + mean(variance_deme_means)) / empricalVar[r]
+#}
+FGrError <- mean(avg_sigma_per_rep) + mean(variance_deme_means) / mean(empricalVar)
 
 ### Compute Lower Bound Error in PCs ###
 

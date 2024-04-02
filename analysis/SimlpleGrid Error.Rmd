@@ -77,5 +77,38 @@ ggsave("~/Desktop/p1_legend.png", p1, width = 10, height = 5)
 
 
 
+## Real data results 
 
+```{r}
+dfError <- fread("../../stratification-data_analysis/plots/pga_paper/error.txt")
+dfError <- dfError[3:10, ]
+
+ggplot(data = dfError, aes(x = L, y = error, color = contrast)) + geom_point(size = 3) + scale_x_log10() + ylab(TeX("$\\hat{F}_{Gr}$\\\ Error")) + 
+  theme_bw(base_size = 14) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), panel.grid.minor = element_line(linetype = 'dashed'), legend.position = "bottom") + scale_color_manual(values = c("purple1", "seagreen1"), name = "Test Vector")
+```
+
+```{r}
+dfQ <- fread("../../stratification-data_analysis/plots/pga_paper/q.txt")
+dfQ <- dfQ %>% distinct()
+for (i in 1:nrow(dfQ)) {
+  dfQ$contrast[i] <- str_split(dfQ$contrast[i], ".all")[[1]][1]
+}
+dfQ$L <- as.character(dfQ$L)
+
+dfFGr <- dfQ %>% filter(covar == "FGr-LOCO")
+dfNo <- dfQ %>% filter(covar == "no-FGr")
+dfNo <- dfNo[1:2,]
+dfNo$L <- "Uncorrected"
+
+df <- rbind(dfFGr, dfNo)
+df$L <- factor(df$L, levels = c( "Uncorrected","1000","10000","1e+05","1e+06"))
+
+ggplot(data = df, aes( x = phenotype, y = L, fill = q)) + geom_tile() + facet_grid(vars(contrast)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = TeX("$\\hat{q}$"))
+
+#+ geom_text(aes(label=sig), color="black", size=7, fontface="bold") + theme_bw(base_size = 14) + xlab("") + ylab("Test panel size") + ggtitle("Education Attainment: Test = North")
+```
+
+```{r}
+ggplot(df, aes(x = L, y = q)) + facet_wrap(~contrast) + geom_point()
+```
 
