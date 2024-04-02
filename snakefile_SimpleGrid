@@ -8,7 +8,7 @@ CORRECTION = PC + ["FGr", "NoCorrection"]
 NUM_RESAMPLE = 2
 HERITABILITY = ["h2-0.0"]
 PHENO = [ "LAT"]
-TEST = ["LAT"]
+TEST = ["LAT", "PS"]
 
 
 
@@ -64,7 +64,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/SimpleGrid/A/error_LAT.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{test}/Error-{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
