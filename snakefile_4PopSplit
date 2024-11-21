@@ -102,13 +102,13 @@ rule gwas_LMM_no_correction:
   shell:
       """
       bash -c "gcta \
-    --mlma \
-    --pfile {params.plink_prefix} \
-    --keep {input.gwas} \
-    --extract {input.snps} \
-    --grm {params.grm_prefix} \
-    --pheno {input.pheno} \
-    --out {params.out_prefix}"
+        --mlma \
+        --pfile \"{params.plink_prefix}\" \
+        --keep \"{input.gwas}\" \
+        --extract \"{input.snps}\" \
+        --grm \"{params.grm_prefix}\" \
+        --pheno \"{input.pheno}\" \
+        --out \"{params.out_prefix}\""
       """
 
 ##########################
