@@ -12,9 +12,9 @@ TS=["p-0.50"]
 
 
 ## Model Parameters
-REP = []
-for i in range(1,101):
-  REP.append("C"+str(i))
+REP = ["C1"]
+#for i in range(1,101):
+#  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -82,6 +82,28 @@ rule make_GRM:
     --keep {input.gwas} \
     --extract {input.snps} \
     --make-grm \
+    --out {params.out_prefix}"
+      """
+
+rule gwas_LMM_no_correction:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt"
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat"
+  shell:
+      """
+      bash -c "gcta \
+    --pfile {params.plink_prefix} \
+    --keep {input.gwas} \
+    --extract {input.snps} \
+    --mlma  \
+    --pheno {input.pheno} \
     --out {params.out_prefix}"
       """
 
