@@ -90,19 +90,24 @@ rule gwas_LMM_no_correction:
       genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
       gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
       snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      grm="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
+      bin_id="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id",
       pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt"
   output:
       "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
   params:
       plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat"
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat",
+      grm_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}"
   shell:
       """
       bash -c "gcta \
     --mlma \
+    --pfile {params.plink_prefix} \
     --keep {input.gwas} \
-    
-    --make-grm \
+    --extract {input.snps} \
+    --grm {params.grm_prefix} \
+    --pheno {input.pheno} \
     --out {params.out_prefix}"
       """
 
