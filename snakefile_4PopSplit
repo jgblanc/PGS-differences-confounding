@@ -60,8 +60,21 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
+rule convert_to_plink1:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam"
+  output:
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam",
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bim",
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bam"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+  shell:
+      """
+      plink2 --pfile {params.plink_prefix} --make-bed --out {params.plink_prefix}
+      """
 
 rule make_GRM:
   input:
@@ -87,7 +100,7 @@ rule make_GRM:
 
 rule gwas_LMM_no_correction:
   input:
-      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam",
       gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
       snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
       grm="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
@@ -103,7 +116,7 @@ rule gwas_LMM_no_correction:
       """
       bash -c "gcta \
         --mlma \
-        --pfile \"{params.plink_prefix}\" \
+        --bfile \"{params.plink_prefix}\" \
         --keep \"{input.gwas}\" \
         --extract \"{input.snps}\" \
         --grm \"{params.grm_prefix}\" \
