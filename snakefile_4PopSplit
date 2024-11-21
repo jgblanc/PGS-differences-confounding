@@ -12,14 +12,14 @@ TS=["p-0.50"]
 
 
 ## Model Parameters
-REP = []
+REP = ["C2"]
 #for i in range(1,101):
 #  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-500","L-810", "L-1320", "L-2100", "L-3400", "L-5500", "L-9000","L-14600", "L-23600", "L-38200" , "L-61800", "L-100000"]
-
+#NSNP = ["L-500","L-810", "L-1320", "L-2100", "L-3400", "L-5500", "L-9000","L-14600", "L-23600", "L-38200" , "L-61800", "L-100000"]
+NSNP = "L-50"
 
 
 
@@ -60,7 +60,30 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/gwas_{nsnp}.fst.summary", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+
+
+rule make_GRM:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.N.bin",
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}"
+  shell:
+      """
+      gcta \
+      --pfile {params.plink_prefix} \
+      --keep {input.gwas} \
+      --extract {input.snps} \
+      ---make-grm \
+      --out {params.out_prefix}
+      """
 
 ##########################
 ### Simluate Genotypes ###
