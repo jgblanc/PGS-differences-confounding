@@ -18,9 +18,9 @@ module load samtools
 
 echo "SLURM_JOBID="$SLURM_JOBID
 cat snakefile_4PopSplit
-snakemake -s snakefile_4PopSplit_TS --unlock
+snakemake -s snakefile_4PopSplit --unlock
 #snakemake -np -s snakefile_4PopSplit --rerun-triggers mtime 
-snakemake --profile cluster-setup/ -s snakefile_4PopSplit_TS --rerun-triggers mtime  --rerun-incomplete
+snakemake --profile cluster-setup/ -s snakefile_4PopSplit  --rerun-incomplete
 #snakemake -j1 --rerun-incomplete -s snakefile_main 
 
 #snakemake --cores all --rerun-incomplete -s snakefile_UKBB    
