@@ -6,6 +6,7 @@ GWAS_SIZE=["gp-1000"]
 TEST_SIZE=["tp-1000"]
 PC=["1"]
 CORRECTION = PC + ["FGr", "NoCorrection", "ID", "LMMNoCorrection"]
+#CORRECTION = "LMMNoCorrection"
 NUM_RESAMPLE = 10
 HERITABILITY = ["h2-0.0"]
 TS=["p-0.50"]
@@ -13,7 +14,7 @@ TS=["p-0.50"]
 
 ## Model Parameters
 REP = ["C1"]
-#for i in range(1,101):
+#for i in range(2,101):
 #  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
