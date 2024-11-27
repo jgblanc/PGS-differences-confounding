@@ -20,8 +20,8 @@ output_file_noncausal=args[5]
 
 # Function to get the effect size for the T allele
 flip_effect = function(gwas_df,beta_colname){
-  gwas_df = gwas_df[A1=="A", beta_colname := -BETA]
-  gwas_df = gwas_df[A1=="T", beta_colname := BETA]
+  gwas_df = gwas_df[A1=="A", beta_colname := -BETA1]
+  gwas_df = gwas_df[A1=="T", beta_colname := BETA1]
   gwas_df$A1="T"
   gwas_df = gwas_df[,.(CHROM,POS,ID,A1,beta_colname,P)]
   colnames(gwas_df)[5] = beta_colname
