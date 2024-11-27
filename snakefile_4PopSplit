@@ -12,9 +12,9 @@ TS=["p-0.50"]
 
 
 ## Model Parameters
-REP = []
-for i in range(1,101):
-  REP.append("C"+str(i))
+REP = ["C1"]
+#for i in range(1,101):
+#  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
@@ -60,7 +60,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_LMMNoCorrection.nc.betas", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 rule pick_SNPS_LMM:
