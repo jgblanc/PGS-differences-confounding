@@ -448,6 +448,3 @@ df10 <- colMeans(df10, na.rm = T)
 
 
 
-
-
-

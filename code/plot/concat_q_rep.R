@@ -26,21 +26,21 @@ out$env <- as.numeric(strsplit(tmp_name[11], "_")[[1]][2])
 
 
 # Loops through all other files and add onto output
-#for (i in 2:(nfile-1)) {
+for (i in 2:(nfile-1)) {
 
-#  tmp <- fread(args[i])[, 2:12]
-#  tmp_name <- strsplit(args[i], "/")[[1]]
-#  tmp$rep <- tmp_name[4]
-#  tmp$config <- tmp_name[5]
-#  tmp$gwas_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
-#  tmp$test_size <- as.numeric(strsplit(tmp_name[7], "-")[[1]][2])
-#  tmp$h2 <- as.numeric(strsplit(tmp_name[8], "-")[[1]][2])
-#  tmp$ts <- as.numeric(strsplit(tmp_name[9], "-")[[1]][2])
-#  tmp$num_causal <- as.numeric(strsplit(tmp_name[10], "-")[[1]][2])
-#  tmp$env <- as.numeric(strsplit(tmp_name[11], "_")[[1]][2])
-#  out <- rbind(out, tmp)
+  tmp <- fread(args[i])[, 2:12]
+  tmp_name <- strsplit(args[i], "/")[[1]]
+  tmp$rep <- tmp_name[4]
+  tmp$config <- tmp_name[5]
+  tmp$gwas_size <- as.numeric(strsplit(tmp_name[6], "-")[[1]][2])
+  tmp$test_size <- as.numeric(strsplit(tmp_name[7], "-")[[1]][2])
+  tmp$h2 <- as.numeric(strsplit(tmp_name[8], "-")[[1]][2])
+  tmp$ts <- as.numeric(strsplit(tmp_name[9], "-")[[1]][2])
+  tmp$num_causal <- as.numeric(strsplit(tmp_name[10], "-")[[1]][2])
+  tmp$env <- as.numeric(strsplit(tmp_name[11], "_")[[1]][2])
+  out <- rbind(out, tmp)
 
-#}
+}
 
 # Save output
 fwrite(out, args[nfile] ,row.names=T,quote=F,sep="\t", col.names = T)
