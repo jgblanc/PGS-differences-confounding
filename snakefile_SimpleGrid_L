@@ -12,15 +12,15 @@ TEST = ["LAT"]
 
 
 
-REP = ["A1"]
-#for i in range(1,101):
-#  REP.append("A"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-#NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000", "L-4000", "L-2000"]
+NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000", "L-4000", "L-2000"]
 #NSNP = ["L-20000","L-10000", "L-2000"]
-NSNP = ["L-2000"]
+#NSNP = ["L-2000"]
 
 wildcard_constraints:
   rep="[A-Z]\d+",
@@ -59,20 +59,20 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, pheno=PHENO, test=TEST, correction=CORRECTION),
+        expand("output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, pheno=PHENO, test=TEST, correction=CORRECTION),
 
 rule make_GRM:
   input:
       genos = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos.psam",
-      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      gwas = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
   output:
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.N.bin",
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
-      "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id"
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.N.bin",
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
+      "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id"
   params:
       plink_prefix = "output/Simulate_Genotypes/SimpleGrid/{rep}/genos",
-      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}"
+      out_prefix = "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}"
   shell:
       """
       bash -c "gcta \
