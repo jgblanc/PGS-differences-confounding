@@ -136,7 +136,7 @@ opt2 <- function(dfPlot, dfError_Plot) {
   return(dfExp)
 }
 
-plot_bias <- function(dfPlot, dfExp) {
+plot_bias <- function(dfPlot) {
   
   # Fix order
   dfPlot$type <- factor(dfPlot$type, levels = c("FGr", "1", "ID" , "NoCorrection"))
@@ -200,6 +200,21 @@ dataDeep <- inner_join(dfExp, dfPlot)
 dataDeep$Split <- "Deep Split"
 ```
 
+LMM Results
+```{r, warning=FALSE, message=FALSE}
+# Read in results 
+df <- fread("../plots/4PopSplit/C/q_LMM.txt")
+df <- df [,3:ncol(df)]
+
+# Summarize data 
+dfPlot <- compute_summary(df)
+
+# Plot Data
+LLM_C <- ggplot(data = dfPlot, aes(x = L, y = avg_q)) + geom_point(size=2) + scale_x_log10() +  xlab(TeX("$L$")) + ylab("Bias") +  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed'), axis.title.y = element_text(margin = margin(r = 14)), plot.margin = margin(t = 10, r = 10, b = 10, l = 10)) + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.1) + ylim(c(0,1))
+LLM_C
+```
+
+
 
 **Middle Split**
 
@@ -241,6 +256,21 @@ ggsave("~/Desktop/middle_split_q.png", pl, width = 3.95, height = 2.95)
 ```{r}
 dataMiddle <- inner_join(dfExp, dfPlot)
 dataMiddle$Split <- "Middle Split"
+```
+
+LMM Results
+```{r, warning=FALSE, message=FALSE}
+# Read in results 
+df <- fread("../plots/4PopSplit/D/q_LMM.txt")
+df <- df [,3:ncol(df)]
+
+# Summarize data 
+dfPlot <- compute_summary(df)
+
+# Plot Data
+LLM_D <- ggplot(data = dfPlot, aes(x = L, y = avg_q)) + geom_point(size=2) + scale_x_log10() +  xlab(TeX("$L$")) + ylab("Bias") +  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed'), axis.title.x = element_blank(), axis.title.y = element_text(margin = margin(r = 14)), plot.margin = margin(t = 10, r = 10, b = 10, l = 10)) + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.1)  + scale_y_continuous(labels = scales::number_format(accuracy = 0.01), limits = c(0,3))
+
+LLM_D
 ```
 
 **No Split**
@@ -286,6 +316,29 @@ ggsave("~/Desktop/no_split_q.png", pl, width = 3.95, height = 2.95)
 dataNoSplit <- inner_join(dfExp, dfPlot)
 dataNoSplit$Split <- "No Split"
 ```
+
+LMM Results
+```{r, warning=FALSE, message=FALSE}
+# Read in results 
+df <- fread("../plots/4PopSplit/E/q_LMM.txt")
+df <- df [,3:ncol(df)]
+
+# Summarize data 
+dfPlot <- compute_summary(df)
+
+# Plot Data
+LLM_E <- ggplot(data = dfPlot, aes(x = L, y = avg_q)) + geom_point(size=2) + scale_x_log10() +  xlab(TeX("$L$")) + ylab("Bias") +  theme_bw(base_size = 14) + theme(legend.position = "bottom", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 10), panel.grid.minor = element_line(linetype = 'dashed'), axis.title.y = element_text(margin = margin(r = 14)), plot.margin = margin(t = 10, r = 10, b = 10, l = 10),axis.title.x = element_blank()) + scale_alpha_manual(values = c(1,1,0.65,0.65), guide = "none")+ geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.1) + ylim(c(0,4)) + scale_y_continuous(labels = scales::number_format(accuracy = 0.01), limits = c(0,4))
+
+LLM_E
+```
+
+#### Combine LMM Results 
+
+```{r}
+pl <- ggarrange(LLM_E, LLM_D, LLM_C, ncol = 1)
+ggsave("~/Desktop/LMM.png", pl, width = 6, height = 10)
+```
+
 
 #### Supplement
 
