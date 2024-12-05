@@ -80,41 +80,6 @@ rule pick_SNPS_LMM:
       """
 
 
-rule convert_to_plink1:
-  input:
-      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam"
-  output:
-      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam",
-      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bim",
-      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bed"
-  params:
-      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-  shell:
-      """
-      plink2 --pfile {params.plink_prefix} --make-bed --out {params.plink_prefix}
-      """
-
-rule make_GRM:
-  input:
-      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
-      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
-      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
-  output:
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.N.bin",
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id"
-  params:
-      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}"
-  shell:
-      """
-      bash -c "gcta \
-    --pfile {params.plink_prefix} \
-    --keep {input.gwas} \
-    --extract {input.snps} \
-    --make-grm \
-    --out {params.out_prefix}"
-      """
 
 rule gwas_LMM_no_correction:
   input:
@@ -433,6 +398,46 @@ rule GWAS_PCA:
 	      --out {params.out_prefix} \
 		    --pca 10 approx
 		    """
+
+#################
+### Make GRM ####
+#################
+
+rule make_GRM:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.N.bin",
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos_gwas_{nsnp}"
+  shell:
+      """
+      bash -c "gcta \
+    --pfile {params.plink_prefix} \
+    --keep {input.gwas} \
+    --extract {input.snps} \
+    --make-grm \
+    --out {params.out_prefix}"
+      """
+
+rule convert_to_plink1:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam"
+  output:
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam",
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bim",
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bed"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+  shell:
+      """
+      plink2 --pfile {params.plink_prefix} --make-bed --out {params.plink_prefix}
+      """
 
 ################
 ### Run GWAS ###

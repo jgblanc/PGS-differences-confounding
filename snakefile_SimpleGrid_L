@@ -12,15 +12,15 @@ TEST = ["LAT"]
 
 
 
-REP = []
-for i in range(1,101):
-  REP.append("A"+str(i))
+REP = ["A1"]
+#for i in range(1,101):
+#  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000", "L-4000", "L-2000"]
+#NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000", "L-4000", "L-2000"]
 #NSNP = ["L-20000","L-10000", "L-2000"]
-#NSNP = ["L-2000"]
+NSNP = ["L-2000"]
 
 wildcard_constraints:
   rep="[A-Z]\d+",
@@ -59,7 +59,22 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, pheno=PHENO, test=TEST, correction=CORRECTION),
+        expand("output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, pheno=PHENO, test=TEST, correction=CORRECTION),
+
+
+rule convert_to_plink1:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam"
+  output:
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.fam",
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bim",
+      "output/Simulate_Genotypes/4PopSplit/{rep}/genos.bed"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+  shell:
+      """
+      plink2 --pfile {params.plink_prefix} --make-bed --out {params.plink_prefix}
+      """
 
 rule make_GRM:
   input:
