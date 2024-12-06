@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=2000
-#SBATCH --partition=tier1q
+#SBATCH --partition=tier2q
 
 module load gcc/12.1.0
 module load python/3.10.5
