@@ -7,7 +7,7 @@ PC=["10"]
 CORRECTION = PC + ["FGr", "NoCorrection"]
 NUM_RESAMPLE = 2
 HERITABILITY = ["h2-0.0"]
-PHENO = [ "LAT"]
+PHENO = [ "LAT", "DIAG", "PS"]
 TEST = ["LAT", "PS"]
 
 
@@ -64,7 +64,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_LMMNoCorrection.nc.betas", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
@@ -536,7 +536,7 @@ rule gwas_LMM_no_correction:
       snps = "output/Simulate_Genotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
       grm="output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.bin",
       bin_id="output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/genos_gwas_{nsnp}.grm.id",
-      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/genos-gwas-{nsnp}.phenos.txt"
+      pheno="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/genos-gwas-{nsnp}.phenos.txt"
   output:
       "output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
   params:
@@ -571,6 +571,21 @@ rule pick_SNPS:
     shell:
       """
       Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
+      rm {input.gwas}
+      """
+
+rule pick_SNPS_LMM:
+    input:
+      causal_effect="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/genos-gwas-{nsnp}.effects.txt",
+      gwas="output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
+    output:
+      c="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_LMMNoCorrection.c.betas",
+      nc="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/genos-gwas_{nsnp}_LMMNoCorrection.nc.betas"
+    params:
+      num_snps = lambda wildcards: get_nc(wildcards.nsnp)
+    shell:
+      """
+      Rscript code/PRS/clump_MLMA.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
       rm {input.gwas}
       """
 
