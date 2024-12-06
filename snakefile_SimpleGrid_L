@@ -12,15 +12,15 @@ TEST = ["LAT"]
 
 
 
-REP = []
-for i in range(1,101):
-  REP.append("A"+str(i))
+REP = ["A1"]
+#for i in range(1,101):
+#  REP.append("A"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000", "L-4000", "L-2000"]
+#NSNP = ["L-20000","L-19000","L-18000","L-17000", "L-16000","L-15000", "L-14000","L-13000", "L-12000", "L-11000", "L-10000","L-9000", "L-8000", "L-7000", "L-6000", "L-4000", "L-2000"]
 #NSNP = ["L-20000","L-10000", "L-2000"]
-#NSNP = ["L-2000"]
+NSNP = ["L-2000"]
 
 wildcard_constraints:
   rep="[A-Z]\d+",
@@ -59,7 +59,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, pheno=PHENO, test=TEST, correction=CORRECTION),
+        expand("output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos-gwas_{nsnp}_LMMNoCorrection.c.betas", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, pheno=PHENO, test=TEST, correction=CORRECTION),
 
 rule gwas_LMM_no_correction:
   input:
@@ -85,6 +85,21 @@ rule gwas_LMM_no_correction:
         --grm \"{params.grm_prefix}\" \
         --pheno \"{input.pheno}\" \
         --out \"{params.out_prefix}\""
+      """
+
+rule pick_SNPS_LMM:
+    input:
+      causal_effect="output/Simulate_Phenotypes/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/genos-gwas-{nsnp}.effects.txt",
+      gwas="output/Run_GWAS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
+    output:
+      c="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos-gwas_{nsnp}_LMMNoCorrection.c.betas",
+      nc="output/PRS/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nsnp}/{nsnp}/{pheno}/{test}/genos-gwas_{nsnp}_LMMNoCorrection.nc.betas"
+    params:
+      num_snps = lambda wildcards: get_nc(wildcards.nsnp)
+    shell:
+      """
+      Rscript code/PRS/clump_MLMA.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
+      rm {input.gwas}
       """
 
 ##########################
