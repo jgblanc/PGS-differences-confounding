@@ -17,10 +17,10 @@ module load bcftools
 module load samtools
 
 echo "SLURM_JOBID="$SLURM_JOBID
-cat snakefile_SimpleGrid_L 
-snakemake -s snakefile_SimpleGrid_L  --unlock
+cat snakefile_SimpleGrid
+snakemake -s snakefile_SimpleGrid  --unlock
 #snakemake -np -s snakefile_4PopSplit --rerun-triggers mtime 
-snakemake --profile cluster-setup/ -s snakefile_SimpleGrid_L  --rerun-incomplete
+snakemake --profile cluster-setup/ -s snakefile_SimpleGrid  --rerun-incomplete
 #snakemake -j1 --rerun-incomplete -s snakefile_main 
 
 #snakemake --cores all --rerun-incomplete -s snakefile_UKBB    
