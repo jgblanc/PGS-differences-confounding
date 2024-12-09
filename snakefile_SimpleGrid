@@ -4,8 +4,8 @@ CONFIG=["C1"]
 GWAS_SIZE=["gp-1440"]
 TEST_SIZE=["tp-1440"]
 PC=["10"]
-#CORRECTION = PC + ["FGr", "NoCorrection", "LMMNoCorrection"]
-CORRECTION = "LMMNoCorrection"
+CORRECTION = PC + ["FGr", "NoCorrection", "LMMNoCorrection"]
+#CORRECTION = "LMMNoCorrection"
 NUM_RESAMPLE = 2
 HERITABILITY = ["h2-0.0"]
 PHENO = [ "LAT", "DIAG", "PS"]
@@ -65,7 +65,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("output/PGA_test/SimpleGrid/{rep}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/long-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("plots/SimpleGrid/A/EqualSS/q_LMM_long.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
@@ -721,7 +721,7 @@ rule bootstrap_error:
 
 rule concat_Q_rep:
   input:
-      expand("output/PGA_test/SimpleGrid/{{rep}}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, env=ENV, pheno=PHENO, test=TEST, correction = CORRECTION)
+      expand("output/PGA_test/SimpleGrid/{{rep}}/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/long-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, nc=NUM_CAUSAL, env=ENV, pheno=PHENO, test=TEST, correction = CORRECTION)
   output:
     qx="plots/SimpleGrid/A/q_{rep}.txt"
   shell:
@@ -733,7 +733,7 @@ rule concat_Q_all:
   input:
       expand("plots/SimpleGrid/A/q_{rep}.txt", rep = REP)
   output:
-    qx="plots/SimpleGrid/A/EqualSS/q_LMM.txt"
+    qx="plots/SimpleGrid/A/EqualSS/q_LMM_long.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
