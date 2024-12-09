@@ -264,7 +264,7 @@ pl
 
 ```{r}
 
-df <- fread("../plots/SimpleGrid/A/EqualSS/q_LAT_LMM.txt")[,3:19]
+df <- fread("../plots/SimpleGrid/A/EqualSS/q_PS_LMM.txt")[,3:19]
 
 # Average Bias and false positive rate 
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`)) %>% filter(L %in% x)
@@ -276,7 +276,7 @@ dfPlot$TEST <- "Latitude"
 # Plot 
 pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(size = 2.5, position=position_dodge(width=1800)) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean),  width = 2000, position=position_dodge(width=1800)) +  
   theme_bw(base_size = 14) + theme(legend.position = "right", panel.border = element_rect(colour = "black", fill=NA, size=1), legend.text = element_text(size = 12), panel.grid.minor = element_line(linetype = 'dashed'), strip.background =element_rect(fill="white")) + ylab("Bias") +
-  scale_color_manual(values = c("goldenrod2", "red4", "darkorange3", "navy"), labels = c("No Correction","10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST) + ylim(0,1.5)
+  scale_color_manual(values = c("goldenrod2", "red4", "darkorange3", "navy"), labels = c("No Correction","10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST) 
 pl
 
 #ggsave("~/Desktop/LAT_Bias.png", pl, width = 7, height = 4)
