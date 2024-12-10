@@ -17,7 +17,7 @@ library(ggpubr)
 
 ```{r, message=FALSE, warning=FALSE}
 # Read in results 
-df <- fread("../plots/SimpleGrid/A/EqualSS/q.txt")
+df <- fread("../plots/SimpleGrid/A/EqualSS/q_LMM.txt")
 df <- df [,3:ncol(df)]
 df <- df %>% filter(type != 35)
 
@@ -25,16 +25,21 @@ df <- df %>% filter(type != 35)
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
 
 # Order the types
-dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection", "FGr", "10" , "ID"))
+dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection","LMMNoCorrection","10", "FGr" ))
 
 # Read in longitude results 
 dfLong <- fread("../plots/SimpleGrid/A/EqualSS/q_long.txt")
 dfLong <- dfLong[,3:ncol(dfLong)]
+tmp <- fread("../plots/SimpleGrid/A/EqualSS/q_LMM_long.txt") 
+tmp <- tmp[,3:ncol(tmp)]
+tmp <- tmp %>% filter(pheno == "DIAG" & test == "LAT")
+dfLong <- rbind(dfLong, tmp)
+
 
 # Average Bias and false positive rate 
 dfPlot_Long <- dfLong %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
 dfPlot_Long$test <- "Longitude"
-dfPlot_Long$type <- factor(dfPlot_Long$type, levels = c("NoCorrection", "FGr", "10" , "ID"))
+dfPlot_Long$type <- factor(dfPlot_Long$type, levels = c("NoCorrection","LMMNoCorrection","10", "FGr" ))
 
 # Substitute names of tests 
 dfPlot$test <- gsub("LAT", "Latitude", dfPlot$test)
@@ -48,7 +53,7 @@ plot_bias <- function(df, pheno_type, test_type, env_type) {
   
   pl <- df %>% filter(pheno == pheno_type  & env == env_type & type != "ID") %>% filter(test %in% test_type ) %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
   theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), legend.position = "none", legend.text.align = 0) + 
-  scale_fill_manual(values = c("goldenrod2","navy", "red4")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "$\\hat{F}_{Gr}$", "10 PCs")))) + xlab("") + ylab("Bias") + facet_wrap(~test)
+  scale_fill_manual(values = c("goldenrod2","turquoise4", "red4" , "navy")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "LMM", "10 PCs", "$\\hat{F}_{Gr}$")))) + xlab("") + ylab("Bias") + facet_wrap(~test)
   
   return(pl)
 }
@@ -238,7 +243,7 @@ pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(si
   scale_color_manual(values = c("goldenrod2","turquoise4", "red4", "darkorange3", "navy"), labels = c("No Correction","LMM", "10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST) 
 pl
 
-#ggsave("~/Desktop/PS_Bias.png", pl, width = 7, height = 4)
+ggsave("~/Desktop/PS_Bias.png", pl, width = 7, height = 4)
 ```
 
 
@@ -261,7 +266,7 @@ pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q, color = type)) + geom_point(si
   scale_color_manual(values = c("goldenrod2","turquoise4", "red4", "darkorange3", "navy"), labels = c("No Correction", "LMM","10 PCs", "35 PCs", TeX("$\\hat{F}_{Gr}$")), name = "") + facet_wrap(~TEST)
 pl
 
-#ggsave("~/Desktop/LAT_Bias.png", pl, width = 7, height = 4)
+ggsave("~/Desktop/LAT_Bias.png", pl, width = 7, height = 4)
 ```
 
 

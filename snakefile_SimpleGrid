@@ -4,8 +4,8 @@ CONFIG=["C1"]
 GWAS_SIZE=["gp-1440"]
 TEST_SIZE=["tp-1440"]
 PC=["10"]
-#CORRECTION = PC + ["FGr", "NoCorrection", "LMMNoCorrection"]
-CORRECTION = "LMMNoCorrection"
+CORRECTION = PC + ["FGr", "NoCorrection", "LMMNoCorrection"]
+#CORRECTION = "LMMNoCorrection"
 NUM_RESAMPLE = 2
 HERITABILITY = ["h2-0.0"]
 PHENO = [ "LAT", "DIAG", "PS"]
@@ -65,7 +65,7 @@ def get_pc_num(x):
 
 rule all:
     input:
-        expand("plots/SimpleGrid/A/EqualSS/q_LMM_long.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
+        expand("plots/SimpleGrid/A/{gwas_size}/{test_size}/{h2}/{nc}/{env}/{pheno}/{test}/prs-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, chr=CHR, gwas_size=GWAS_SIZE, test_size=TEST_SIZE, nsnp = NSNP, h2=HERITABILITY, env=ENV, pheno=PHENO, test=TEST, nc=NUM_CAUSAL, correction=CORRECTION)
 
 
 ##########################
