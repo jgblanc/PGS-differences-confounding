@@ -1,11 +1,12 @@
+
 ## Snakefile to run 4 Pop Simulations
 
 CONFIG=["C1"]
 GWAS_SIZE=["gp-1440"]
 TEST_SIZE=["tp-1440"]
 PC=["10"]
-CORRECTION = PC + ["FGr", "NoCorrection", "LMMNoCorrection"]
-#CORRECTION = "LMMNoCorrection"
+#CORRECTION = PC + ["FGr", "NoCorrection", "LMMNoCorrection"]
+CORRECTION = "LMMNoCorrection"
 NUM_RESAMPLE = 2
 HERITABILITY = ["h2-0.0"]
 PHENO = [ "LAT", "DIAG", "PS"]
