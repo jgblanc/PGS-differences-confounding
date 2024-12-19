@@ -6,7 +6,7 @@ GWAS_SIZE=["gp-1000"]
 TEST_SIZE=["tp-1000"]
 PC=["1"]
 #CORRECTION = PC + ["FGr", "NoCorrection", "ID", "LMMNoCorrection"]
-CORRECTION = "LMMNoCorrection"
+CORRECTION = "J1"
 NUM_RESAMPLE = 10
 HERITABILITY = ["h2-0.0"]
 TS=["p-0.50"]
@@ -61,7 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/jointcovars-{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J1.pheno_strat.glm.linear", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -542,6 +542,32 @@ rule gwas_PCs:
       --pheno-name pheno_strat \
       --covar {input.covar} \
       --covar-col-nums {params.pcs} \
+      --out {params.out_prefix}
+      """
+
+rule gwas_PCs_joint:
+  input:
+      genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+      gwas = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/ids.gwas",
+      snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt",
+      pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt",
+      covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/jointcovars-{nsnp}.txt"
+  output:
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J1.pheno_strat.glm.linear"
+  params:
+      plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J1"
+  shell:
+      """
+      plink2 \
+      --pfile {params.plink_prefix} \
+      --keep {input.gwas} \
+      --extract {input.snps} \
+      --glm hide-covar \
+      --pheno {input.pheno} \
+      --pheno-name pheno_strat \
+      --covar {input.covar} \
+      --covar-col-nums 6 \
       --out {params.out_prefix}
       """
 
