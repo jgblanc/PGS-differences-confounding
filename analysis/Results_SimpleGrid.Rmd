@@ -25,7 +25,7 @@ df <- df %>% filter(type != 35)
 dfPlot <- df %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
 
 # Order the types
-dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection","LMMNoCorrection","10", "FGr" ))
+dfPlot$type <- factor(dfPlot$type, levels = c("NoCorrection","10", "FGr" ,"LMMNoCorrection"))
 
 # Read in longitude results 
 dfLong <- fread("../plots/SimpleGrid/A/EqualSS/q_long.txt")
@@ -39,7 +39,7 @@ dfLong <- rbind(dfLong, tmp)
 # Average Bias and false positive rate 
 dfPlot_Long <- dfLong %>% group_by(gwas_size, test_size, h2, num_causal, env, L, type, pheno, test) %>% summarize(count = n(), avg_q = mean(`nc-q`),lowerci_mean = avg_q - (1.96 * (sd(`nc-q`)  /  sqrt(n()))), upperci_mean = avg_q + (1.96 * (sd(`nc-q`)  /  sqrt(n()))), fp_strat = sum(`nc-p` < 0.05)/ n(), lowerci_fp = fp_strat - 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), upperci_fp = fp_strat + 1.96 * sqrt((fp_strat * (1-fp_strat))/ n()), q_std = avg_q / sd(`nc-q`))
 dfPlot_Long$test <- "Longitude"
-dfPlot_Long$type <- factor(dfPlot_Long$type, levels = c("NoCorrection","LMMNoCorrection","10", "FGr" ))
+dfPlot_Long$type <- factor(dfPlot_Long$type, levels = c("NoCorrection","10", "FGr","LMMNoCorrection" ))
 
 # Substitute names of tests 
 dfPlot$test <- gsub("LAT", "Latitude", dfPlot$test)
@@ -53,7 +53,7 @@ plot_bias <- function(df, pheno_type, test_type, env_type) {
   
   pl <- df %>% filter(pheno == pheno_type  & env == env_type & type != "ID") %>% filter(test %in% test_type ) %>% ggplot(aes(x = type, y = avg_q, fill = type)) + geom_col()+ geom_point(fill = "black", size = 3) + geom_hline(yintercept = 0, color = "red") + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.2) +
   theme_classic(base_size = 12) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.text.x = element_text(size = 8, color = "black",  angle = 35, hjust=1), legend.position = "none", legend.text.align = 0) + 
-  scale_fill_manual(values = c("goldenrod2","turquoise4", "red4" , "navy")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "LMM", "10 PCs", "$\\hat{F}_{Gr}$")))) + xlab("") + ylab("Bias") + facet_wrap(~test)
+  scale_fill_manual(values = c("goldenrod2", "red4" , "navy", "turquoise4")) + scale_x_discrete(labels = unname(TeX(c("Uncorrected", "10 PCs", "$\\hat{F}_{Gr}$", "LMM")))) + xlab("") + ylab("Bias") + facet_wrap(~test)
   
   return(pl)
 }
@@ -72,7 +72,7 @@ plPS
 
 ```{r}
 
-plot_PRS <- function(dfNC, dfFGr, dfPCs, ll, up) {
+plot_PRS <- function(dfNC, dfFGr, dfPCs, dfLMMs, ll, up) {
   
   # No Correction
   plNC <- ggplot(data =dfNC, aes(x = LONG, y = LAT, fill = avg_PRS)) + geom_tile() +  theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = "PGS", limits = c(ll, up)) + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
@@ -83,8 +83,11 @@ plot_PRS <- function(dfNC, dfFGr, dfPCs, ll, up) {
   # 10 PCs included
   plPCs <- ggplot(data =dfPCs, aes(x = LONG, y = LAT, fill = avg_PRS)) + geom_tile() +  theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = "PGS", limits = c(ll, up)) + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
   
+  # LMM
+  plLMM <- ggplot(data =dfPCs, aes(x = LONG, y = LAT, fill = avg_PRS)) + geom_tile() +  theme_classic(base_size = 12) +  theme(panel.border = element_rect(colour = "black", fill=NA, size=1)) + scale_fill_gradient2(low = "brown4", high = "royalblue4", name = "PGS", limits = c(ll, up)) + xlab("Longitude") + ylab("Latitude") + scale_y_continuous(breaks=seq(0,6,1)) + scale_x_continuous(breaks=seq(0,6,1)) + theme(axis.title = element_blank())
+  
   # Combine plots
-  pl <- ggpubr::ggarrange(plNC, plFGr, plPCs, common.legend = T, legend="right", nrow = 1)
+  pl <- ggpubr::ggarrange(plNC, plFGr, plPCs, plLMM, common.legend = T, legend="right", nrow = 1)
   
 }
 
@@ -92,7 +95,8 @@ plot_PRS <- function(dfNC, dfFGr, dfPCs, ll, up) {
 dfNC <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/LAT/prs-NoCorrection_L-20000.txt")
 dfFGr <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/LAT/prs-FGr_L-20000.txt")
 dfPCs <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/LAT/prs-10_L-20000.txt")
-prsLL <- plot_PRS(dfNC, dfFGr, dfPCs, -.6, .6)
+dfLMM <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/LAT/LAT/prs-LMMNoCorrection_L-20000.txt")
+prsLL <- plot_PRS(dfNC, dfFGr, dfPCs, dfLMM, -.6, .6)
 prsLL
 
 
@@ -100,14 +104,16 @@ prsLL
 dfNC <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-NoCorrection_L-20000.txt")
 dfFGr <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-FGr_L-20000.txt")
 dfPCs <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-10_L-20000.txt")
-prsDL <- plot_PRS(dfNC, dfFGr, dfPCs, -.28, .28)
+dfLMM <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/DIAG/LAT/prs-LMMNoCorrection_L-20000.txt")
+prsDL <- plot_PRS(dfNC, dfFGr, dfPCs,dfLMM, -.28, .28)
 prsDL
 
 # PS/PS
 dfNC <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/PS/prs-NoCorrection_L-20000.txt")
 dfFGr <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/PS/prs-FGr_L-20000.txt")
 dfPCs <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/PS/prs-10_L-20000.txt")
-prsPS <- plot_PRS(dfNC, dfFGr, dfPCs, -.12, .12)
+dfLMM <- fread("../plots/SimpleGrid/A/gp-1440/tp-1440/h2-0.0/c-300/env_0.2/PS/PS/prs-LMMNoCorrection_L-20000.txt")
+prsPS <- plot_PRS(dfNC, dfFGr, dfPCs, dfLMM, -.12, .12)
 prsPS
 ```
 
@@ -140,12 +146,12 @@ phenoPS
 
 ## Final Figure 4
 ```{r}
-sv1 <- ggpubr::ggarrange(phenoLat, prsLL, plLL, nrow = 1, widths = c(0.19, 0.61, 0.2))
-sv2 <- ggpubr::ggarrange(phenoDiag, prsDL, plDL, nrow = 1, widths = c(0.19, 0.61, 0.2))
-sv3 <- ggpubr::ggarrange(phenoPS, prsPS, plPS, nrow = 1, widths = c(0.19, 0.61, 0.2))
+sv1 <- ggpubr::ggarrange(phenoLat, prsLL, plLL, nrow = 1, widths = c(0.11, 0.48, 0.14))
+sv2 <- ggpubr::ggarrange(phenoDiag, prsDL, plDL, nrow = 1, widths = c(0.11, 0.48, 0.14))
+sv3 <- ggpubr::ggarrange(phenoPS, prsPS, plPS, nrow = 1, widths = c(0.11, 0.48, 0.14))
 
 out <- ggarrange(sv1, sv2, sv3, nrow = 4, ncol = 1)
-ggsave("~/Desktop/fig4.png", out, height = 10, width = 12)
+ggsave("~/Desktop/fig4.png", out, height = 10, width = 16)
 ```
 
 ## Variance Explained Plots 

@@ -343,6 +343,7 @@ dfTrue <- rbind(dfTrue_nc, dfTrue_c)
 
 # Final plotting data set
 dfFinal <- rbind(dfPlot, dfTrue)
+dfFinal
 
 # Order factors
 dfFinal$type <- factor(dfFinal$type, levels = c("1", "FGr", "ID" , "NoCorrection", "True Effect Size"))
@@ -366,16 +367,26 @@ labs <-  c("PC 1",TeX("$\\hat{F}_{Gr}$"), TeX("$\\tilde{F}_{Gr}$"), "No Correcti
 
 # Prep to plot
 dfEB$x <- as.factor(round(dfEB$avg_true,2))
-dfTrue_c $x <- as.factor(round(dfTrue_c$avg_true,2)) 
+dfTrue_c$x <- as.factor(round(dfTrue_c$avg_true,2)) 
+dfTrue_nc$x <- as.factor(round(dfTrue_nc$avg_true,2)) 
 
 # Plot
-pl <- dfEB %>% filter(effects == "Causal") %>% ggplot(aes(x = x, y = avg_q, color = type))+ geom_point(position=position_dodge(width=1))+ facet_wrap(~facet2) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.5, position=position_dodge(width=1)) + theme_classic(base_size = 12) + 
+#pl <- dfEB %>% ggplot(aes(x = x, y = avg_q, color = type))+ geom_point(position=position_dodge(width=1))+ facet_wrap(~facet2) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 0.5, position=position_dodge(width=1)) + theme_classic(base_size = 12) + 
+#  theme(legend.text.align = 0) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.title = element_text(size = 12)) +
+#  scale_colour_manual(name = "",labels = labs, values = c("red4" , "navy",  "darkgreen", "goldenrod2", "red")) + 
+#  scale_shape_manual(name = "",labels = labs, values = c(16, 16, 16,16)) + 
+#  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2)) + geom_errorbar(data =dfTrue_c, aes(ymin = avg_q, ymax = avg_q, color = type)) + xlab(TeX("$E\\left[q\\right]$")) + ylab(TeX("$E\\left[\\hat{q}\\right]$"))
+#pl
+
+pl <- dfEB %>% ggplot(aes(x = x, y = avg_q, color = type))+ geom_point(position=position_dodge(width=1))+ facet_grid(vars(effects), vars(facet2)) + geom_errorbar(aes(ymin = lowerci_mean, ymax = upperci_mean), width = 1, position=position_dodge(width=1)) + theme_classic(base_size = 12) + 
   theme(legend.text.align = 0) + theme(panel.border = element_rect(colour = "black", fill=NA, size=1), axis.title = element_text(size = 12)) +
   scale_colour_manual(name = "",labels = labs, values = c("red4" , "navy",  "darkgreen", "goldenrod2", "red")) + 
   scale_shape_manual(name = "",labels = labs, values = c(16, 16, 16,16)) + 
-  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2)) + geom_errorbar(data =dfTrue_c, aes(ymin = avg_q, ymax = avg_q, color = type)) + xlab(TeX("$E\\left[q\\right]$")) + ylab(TeX("$E\\left[\\hat{q}\\right]$"))
+  scale_size_manual(name = "",labels = labs,values = c(2, 2, 2, 2)) + geom_errorbar(data =dfTrue_c, aes(ymin = avg_q, ymax = avg_q, color = type)) + xlab(TeX("$E\\left[q\\right]$")) + ylab(TeX("$E\\left[\\hat{q}\\right]$")) + geom_errorbar(data =dfTrue_nc, aes(ymin = avg_q, ymax = avg_q, color = type))
 
-#ggsave("~/Desktop/TS.png", pl, width = 9, height = 5)
+
+pl
+ggsave("~/Desktop/TS.png", pl, width = 9, height = 7)
 ```
 
 

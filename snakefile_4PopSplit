@@ -13,14 +13,14 @@ TS=["p-0.50"]
 
 
 ## Model Parameters
-REP = []
-for i in range(2,101):
-  REP.append("C"+str(i))
+REP = ["C1"]
+#for i in range(2,101):
+#  REP.append("C"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-NSNP = ["L-500","L-810", "L-1320", "L-2100", "L-3400", "L-5500", "L-9000","L-14600", "L-23600", "L-38200" , "L-61800", "L-100000"]
-#NSNP = "L-500"
+#NSNP = ["L-500","L-810", "L-1320", "L-2100", "L-3400", "L-5500", "L-9000","L-14600", "L-23600", "L-38200" , "L-61800", "L-100000"]
+NSNP = "L-500"
 
 
 
@@ -61,23 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/C/q_LMM.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
-
-
-rule pick_SNPS_LMM:
-    input:
-      causal_effect="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/genos-gwas-{nsnp}.effects.txt",
-      gwas="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
-    output:
-      c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_LMMNoCorrection.c.betas",
-      nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_LMMNoCorrection.nc.betas"
-    params:
-      num_snps = lambda wildcards: get_nc(wildcards.nsnp)
-    shell:
-      """
-      Rscript code/PRS/clump_MLMA.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
-      rm {input.gwas}
-      """
+        expand("output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-joint-{nsnp}.eigenvec", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -372,6 +356,25 @@ rule GWAS_PCA:
 		    --pca 10 approx
 		    """
 
+rule joint_PCA:
+    input:
+        genos = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.psam",
+        snps = "output/Simulate_Genotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/common_snps_{nsnp}.txt"
+    output:
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-joint-{nsnp}.eigenvec",
+        "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-joint-{nsnp}.eigenval"
+    params:
+        plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
+        out_prefix = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-joint-{nsnp}"
+    shell:
+        """
+        plink2 \
+	      --pfile {params.plink_prefix} \
+	      --extract {input.snps} \
+	      --out {params.out_prefix} \
+		    --pca 10 approx
+		    """
+
 #################
 ### Make GRM ####
 #################
@@ -572,6 +575,21 @@ rule pick_SNPS:
     shell:
       """
       Rscript code/PRS/clump.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
+      rm {input.gwas}
+      """
+
+rule pick_SNPS_LMM:
+    input:
+      causal_effect="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/genos-gwas-{nsnp}.effects.txt",
+      gwas="output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_LMMNoCorrection.pheno_strat.mlma"
+    output:
+      c="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_LMMNoCorrection.c.betas",
+      nc="output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_LMMNoCorrection.nc.betas"
+    params:
+      num_snps = lambda wildcards: get_nc(wildcards.nsnp)
+    shell:
+      """
+      Rscript code/PRS/clump_MLMA.R {input.causal_effect} {input.gwas} {params.num_snps} {output.c} {output.nc}
       rm {input.gwas}
       """
 
