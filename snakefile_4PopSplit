@@ -61,7 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J1.pheno_strat.glm.linear", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("output/PRS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas_{nsnp}_{correction}.c.betas", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
