@@ -61,7 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-joint-{nsnp}.eigenvec", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/jointcovars-{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -426,6 +426,18 @@ rule format_covars:
       PC = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-gwas-{nsnp}.eigenvec"
     output:
       "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/covars-{nsnp}.txt",
+    shell:
+      """
+      Rscript code/Run_GWAS/format_covars.R {input.pops} {input.FGr} {input.PC} {output}
+      """
+
+rule format_covars_joint:
+    input:
+      pops = "output/Simulate_Genotypes/4PopSplit/{rep}/genos.pop",
+      FGr = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/FGr-{nsnp}.txt",
+      PC = "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/genos-joint-{nsnp}.eigenvec"
+    output:
+      "output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/jointcovars-{nsnp}.txt",
     shell:
       """
       Rscript code/Run_GWAS/format_covars.R {input.pops} {input.FGr} {input.PC} {output}
