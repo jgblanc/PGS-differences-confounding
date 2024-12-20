@@ -13,14 +13,14 @@ TS=["p-0.50"]
 
 
 ## Model Parameters
-REP = ["C1"]
-#for i in range(2,101):
-#  REP.append("C"+str(i))
+REP = []
+for i in range(1,101):
+  REP.append("D"+str(i))
 CHR = []
 for i in range(1,501):
   CHR.append(str(i))
-#NSNP = ["L-500","L-810", "L-1320", "L-2100", "L-3400", "L-5500", "L-9000","L-14600", "L-23600", "L-38200" , "L-61800", "L-100000"]
-NSNP = "L-500"
+NSNP = ["L-500","L-810", "L-1320", "L-2100", "L-3400", "L-5500", "L-9000","L-14600", "L-23600", "L-38200" , "L-61800", "L-100000"]
+#NSNP = "L-500"
 
 
 
@@ -61,7 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("output/PGA_test/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/D/q_joint.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -691,7 +691,7 @@ rule concat_Q_rep:
   input:
       expand("output/PGA_test/4PopSplit/{{rep}}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/q-{correction}_{nsnp}.txt", config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, h2=HERITABILITY, ts=TS, correction = CORRECTION)
   output:
-    qx="plots/4PopSplit/C/q_LMM_{rep}.txt"
+    qx="plots/4PopSplit/D/q_joint_{rep}.txt"
   shell:
     """
     Rscript code/plot/concat_q_rep.R {input} {output}
@@ -699,9 +699,9 @@ rule concat_Q_rep:
 
 rule concat_Q_all:
   input:
-      expand("plots/4PopSplit/C/q_LMM_{rep}.txt", rep = REP)
+      expand("plots/4PopSplit/D/q_joint_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/C/q_LMM.txt"
+    qx="plots/4PopSplit/D/q_joint.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
