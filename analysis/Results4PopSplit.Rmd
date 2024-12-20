@@ -140,7 +140,7 @@ plot_bias <- function(dfPlot) {
   
   # Fix order
   dfPlot$type <- factor(dfPlot$type, levels = c("FGr", "1","LMMNoCorrection", "ID" , "NoCorrection"))
-  dfExp$type <- factor(dfExp$type, levels = c("FGr", "1"))
+  #dfExp$type <- factor(dfExp$type, levels = c("FGr", "1"))
 
   # Plot 
   pl <- ggplot(data = dfPlot, aes(x = L, y = avg_q)) + geom_point(aes(color = type, alpha = type), size=2) + scale_x_log10() + 
@@ -201,6 +201,28 @@ ggsave("~/Desktop/deep_split_q.png", pl, width = 3.95, height = 2.95)
 ```{r}
 dataDeep <- inner_join(dfExp, dfPlot)
 dataDeep$Split <- "Deep Split"
+```
+
+
+
+```{r}
+df <- fread("../plots/4PopSplit/E/q_joint.txt")
+df <- df [,3:ncol(df)]
+
+dfPlot <- compute_summary(df)
+
+pl <- plot_bias(dfPlot)
+pl
+
+```
+
+
+```{r}
+tmp <- fread("~/Downloads/genos-joint-L-100000.eigenvec")
+tmp2 <- fread("~/Downloads/jointcovars-L-14600.txt")
+tmp3 <- fread("~/Downloads/jointcovars-L-100000.txt")
+
+plot(tmp$PC2, tmp$PC3)
 ```
 
 
