@@ -206,7 +206,7 @@ dataDeep$Split <- "Deep Split"
 
 
 ```{r}
-df <- fread("../plots/4PopSplit/E/q_joint.txt")
+df <- fread("../plots/4PopSplit/C/q_joint3.txt")
 df <- df [,3:ncol(df)]
 
 dfPlot <- compute_summary(df)

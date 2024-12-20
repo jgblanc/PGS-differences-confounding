@@ -6,7 +6,7 @@ GWAS_SIZE=["gp-1000"]
 TEST_SIZE=["tp-1000"]
 PC=["1"]
 #CORRECTION = PC + ["FGr", "NoCorrection", "ID", "LMMNoCorrection"]
-CORRECTION = "J3"
+CORRECTION = "J10"
 NUM_RESAMPLE = 10
 HERITABILITY = ["h2-0.0"]
 TS=["p-0.50"]
@@ -61,7 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/C/q_joint3.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/C/q_joint10.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -567,7 +567,7 @@ rule gwas_PCs_joint:
       --pheno {input.pheno} \
       --pheno-name pheno_strat \
       --covar {input.covar} \
-      --covar-col-nums 6-8 \
+      --covar-col-nums 6-15 \
       --out {params.out_prefix}
       """
 
@@ -701,7 +701,7 @@ rule concat_Q_all:
   input:
       expand("plots/4PopSplit/C/q_joint_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/C/q_joint3.txt"
+    qx="plots/4PopSplit/C/q_joint10.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
