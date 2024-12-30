@@ -6,7 +6,7 @@ GWAS_SIZE=["gp-1000"]
 TEST_SIZE=["tp-1000"]
 PC=["1"]
 #CORRECTION = PC + ["FGr", "NoCorrection", "ID", "LMMNoCorrection"]
-CORRECTION = "J10"
+CORRECTION = "J3"
 NUM_RESAMPLE = 10
 HERITABILITY = ["h2-0.0"]
 TS=["p-0.50"]
@@ -61,7 +61,7 @@ def get_nc(x):
 
 rule all:
     input:
-        expand("plots/4PopSplit/E/q_joint10.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
+        expand("plots/4PopSplit/E/q_joint3.txt", rep = REP, config=CONFIG, gwas_size = GWAS_SIZE, test_size = TEST_SIZE, nsnp=NSNP, chr=CHR, h2=HERITABILITY, ts=TS, pc=PC, correction = CORRECTION)
 
 
 ##########################
@@ -553,10 +553,10 @@ rule gwas_PCs_joint:
       pheno="output/Simulate_Phenotypes/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos-gwas-{nsnp}.phenos.txt",
       covar="output/Calculate_FGr/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/jointcovars-{nsnp}.txt"
   output:
-      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J10.pheno_strat.glm.linear"
+      "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J3.pheno_strat.glm.linear"
   params:
       plink_prefix = "output/Simulate_Genotypes/4PopSplit/{rep}/genos",
-      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J10"
+      out_prefix = "output/Run_GWAS/4PopSplit/{rep}/{config}/{gwas_size}/{test_size}/{h2}/{ts}/{nsnp}/{nsnp}/genos_gwas_{nsnp}_J3"
   shell:
       """
       plink2 \
@@ -567,7 +567,7 @@ rule gwas_PCs_joint:
       --pheno {input.pheno} \
       --pheno-name pheno_strat \
       --covar {input.covar} \
-      --covar-col-nums 6-15 \
+      --covar-col-nums 6-8 \
       --out {params.out_prefix}
       """
 
@@ -701,7 +701,7 @@ rule concat_Q_all:
   input:
       expand("plots/4PopSplit/E/q_joint_{rep}.txt", rep = REP)
   output:
-    qx="plots/4PopSplit/E/q_joint10.txt"
+    qx="plots/4PopSplit/E/q_joint3.txt"
   shell:
     """
     Rscript code/plot/concat_all.R {input} {output}
